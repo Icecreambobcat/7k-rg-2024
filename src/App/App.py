@@ -9,8 +9,27 @@ import os
 import sys 
 
 import pygame as pg
+from pygame import font, mixer, surface, time, display, event, key, image, mouse
 
+pg.init()
 
 class App:
+    def __init__(self, launchState) -> None:
+        pass
+
+
+class Screen:
+    def __init__(self) -> None:
+        pass
+
+
+class Object(ABC):
+    @property
+    @abstractmethod
+    def type(self) -> str:
+        pass
+
+
+class AudioWrapper:
     def __init__(self) -> None:
         pass
