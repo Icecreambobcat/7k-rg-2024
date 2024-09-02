@@ -1,5 +1,4 @@
 from __future__ import annotations # Required for forward references
-from re import L
 from typing import List, Dict, Any, Union, Optional, Tuple, Type # Required for forward references
 
 from abc import ABC, abstractmethod # Required for abstract classes
@@ -19,6 +18,9 @@ from States.Results import Results
 
 
 class App:
+    """
+    The app class handles the game instance itself, being instantiated once and being the top-level class for this game
+    """
     def __init__(self) -> None:
         pg.init()
         self.screen = Screen()
@@ -69,24 +71,31 @@ class AudioWrapper:
             pass
 
 
-class Object(ABC):
+class Object(ABC): # Base class for all onscreen objects
     @property
     @abstractmethod
     def gamestates(self) -> list[str]:
         pass
-
+    # Defines the gamestates in which the object is visible
     @property
     @abstractmethod
     def position(self) -> Tuple[int, int]:
         pass
+    # Defines the position of the object WITH RESPECT TO GAMESTATE
 
     @property
     @abstractmethod
     def textures(self) -> dict[str, surface.Surface]:
         pass
+    # Defines a dict of textures for each object type
 
 
 class Note(Object):
+    """
+    The note class is used for the rhythm game part of the game
+    All note objects are first loaded into memory
+    LNs are then reparsed live in the level
+    """
     def __init__(self, lane, time, noteType) -> None:
         self.lane = lane
         self.time = time
@@ -109,7 +118,11 @@ class Note(Object):
             'lnEnd': image.load('lnEnd.png'),
         }
 
+
 class Player(Object):
+    """
+    The player class is used for the song select screen to fulfill the requirement of a movable player
+    """
     def __init__(self) -> None:
         self.x = 0
         self.y = 0
