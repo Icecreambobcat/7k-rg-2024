@@ -1,3 +1,3 @@
 class Menu:
-    def init(self) -> None:
+    def __init__(self) -> None:
         pass

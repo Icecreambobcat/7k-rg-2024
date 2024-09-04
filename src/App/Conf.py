@@ -1,5 +1,6 @@
 import pickle
 
+
 class Conf:
     def __init__(self):
         pass
@@ -7,6 +8,7 @@ class Conf:
 
 def loadConf():
     pass
+
 
 def saveConf():
     pass
