@@ -6,7 +6,6 @@ from abc import ABC, abstractmethod # Required for abstract classes
 from threading import Thread # Required for threading
 import math 
 import os
-import sys 
 
 import pygame as pg
 from pygame import font, mixer, surface, time, display, event, key, image, mouse
@@ -29,12 +28,12 @@ class App:
         self.levelSelect = LevelSelect()
         self.results = Results()
         self.audio = AudioWrapper()
+        self.clock = pg.time.Clock()
         
     def run(self) -> None:
         pg.display.set_mode(size=(1920, 1080), flags = pg.FULLSCREEN)
         pg.display.set_caption('RG 0.1 Alpha')
-        pass
-
+        pass # Continue implementation with game loop & consider moving specific gamestate objects to their respective gamestate files
 
 class Screen:
     def __init__(self) -> None:
@@ -46,29 +45,40 @@ class Screen:
 
 
 class AudioWrapper:
+    """
+    Implementation for audio & room for expansion
+    All pygame audio functions should be called from here
+    """
     def __init__(self) -> None:
         mixer.init()
         mixer.set_num_channels(16)
-        perfect = mixer.Sound('perfect.wav')
-        hold = mixer.Sound('hold.wav')
-        miss = mixer.Sound('miss.wav')
 
-        bgm = mixer.Channel(0)
-        playerFX = mixer.Channel(1)
-        gameFX = mixer.Channel(2)
+        self.bgm = mixer.Channel(0)
+        self.playerFX = mixer.Channel(1)
+        self.gameFX = mixer.Channel(2)
 
-        lane1 = mixer.Channel(3)
-        lane2 = mixer.Channel(4)
-        lane3 = mixer.Channel(5)
-        lane4 = mixer.Channel(6)
-        lane5 = mixer.Channel(7)
-        lane6 = mixer.Channel(8)
-        lane7 = mixer.Channel(9)
+        self.lane0 = mixer.Channel(3)
+        self.lane1 = mixer.Channel(4)
+        self.lane2 = mixer.Channel(5)
+        self.lane3 = mixer.Channel(6)
+        self.lane4 = mixer.Channel(7)
+        self.lane5 = mixer.Channel(8)
+        self.lane6 = mixer.Channel(9)
 
-        song = mixer.Channel(10)
+        self.song = mixer.Channel(10)
 
-        def play(self, channel: int, sound: mixer.Sound) -> None:
-            pass
+        self.extra0 = mixer.Channel(11)
+        self.extra1 = mixer.Channel(12)
+        self.extra2 = mixer.Channel(13)
+        self.extra3 = mixer.Channel(14)
+        self.extra4 = mixer.Channel(15)
+
+        for file in os.listdir('Assets/Audio/'):
+            if file.endswith('.wav'):
+                pass # to be implemented...
+
+    def play(self, channel: int, sound: mixer.Sound) -> None:
+        pass
 
 
 class Object(ABC): # Base class for all onscreen objects
