@@ -37,9 +37,10 @@ class App:
         self.audio = AudioWrapper()
         self.clock = pg.time.Clock()
 
-    def run(self) -> None:
         pg.display.set_mode(size=(1920, 1080), flags=pg.FULLSCREEN)
         pg.display.set_caption("RG 0.1 Alpha")
+
+    def run(self) -> None:
         pass  # Continue implementation with game loop & consider moving specific gamestate objects to their respective gamestate files
 
 
