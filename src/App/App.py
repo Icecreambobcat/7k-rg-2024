@@ -7,12 +7,10 @@ from typing import (
     Optional,
     Tuple,
     Type,
-)  # Required for forward references
+)
 
 from abc import ABC, abstractmethod  # Required for abstract classes
 
-from threading import Thread  # Required for threading
-import math
 import os
 
 import pygame as pg
@@ -124,60 +122,3 @@ class Object(ABC):  # Base class for all onscreen objects
         pass
 
     # Defines a dict of textures for each object type
-
-
-class Note(Object):
-    """
-    CONSIDER MIGRATING TO SPECIFIC GAMESTATE FILE
-
-    The note class is used for the rhythm game part of the game
-    All note objects are first loaded into memory
-    LNs are then reparsed live in the level
-    """
-
-    def __init__(self, lane, time, noteType) -> None:
-        self.lane = lane
-        self.time = time
-        self.noteType = noteType
-
-    @property
-    def gamestates(self) -> list[str]:
-        return ["game"]
-
-    @property
-    def position(self) -> Tuple[int, int]:
-        return (self.lane, self.time)
-
-    @property
-    def textures(self) -> dict[str, surface.Surface]:
-        return {
-            "tap": image.load("tap.png"),
-            "ln": image.load("ln.png"),
-            "lnBody": image.load("lnBody.png"),
-            "lnEnd": image.load("lnEnd.png"),
-        }
-
-
-class Player(Object):
-    """
-    The player class is used for the song select screen to fulfill the requirement of a movable player
-    Probably gonna implement specific movement reading here but could also do it somewhere else
-
-    CONSIDER MIGRATING TO SPECIFIC GAMESTATE FILE
-    """
-
-    def __init__(self) -> None:
-        self.x = 0
-        self.y = 0
-
-    @property
-    def gamestates(self) -> list[str]:
-        return ["levelSelect"]
-
-    @property
-    def position(self) -> Tuple[int, int]:
-        return (self.x, self.y)
-
-    @property
-    def textures(self) -> dict[str, surface.Surface]:
-        return {"player": image.load("player.png")}
