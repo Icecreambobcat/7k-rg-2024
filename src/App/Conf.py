@@ -9,6 +9,8 @@ class Conf:
     Otherwise the custom configs will be loaded memory and used
     """
 
+    VERSION = "VERSION PLACEHOLDER"
+
     WINDOW = {"PLACEHOLDER": "PLACEHOLDER"}
 
     KEYS = {"PLACEHOLDER": "PLACEHOLDER"}
