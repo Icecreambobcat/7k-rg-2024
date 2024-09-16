@@ -19,8 +19,6 @@ class Game:
 
 class Note(Object):
     """
-    Might move back into Game class
-
     The note class is used for the rhythm game part of the game
     All note objects are first loaded into memory
     LNs are then reparsed live in the level
