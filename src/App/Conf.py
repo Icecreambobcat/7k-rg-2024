@@ -1,4 +1,5 @@
 import pickle
+from pyautogui import size
 
 
 class Conf:
@@ -16,6 +17,8 @@ class Conf:
     KEYS = {"PLACEHOLDER": "PLACEHOLDER"}
 
     DEFAULTS = {"PLACEHOLDER": "PLACEHOLDER"}
+    
+    SCREEN_SIZE: tuple = size() if (size()[0] > 1920 and size()[1] > 1080) else (1920, 1080)
 
     def __init__(self):
         # call this from somewhere else if there is no loadconf
