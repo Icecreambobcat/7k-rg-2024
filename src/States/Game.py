@@ -2,13 +2,9 @@ from ..App.App import Object
 import pygame as pg
 from pygame import font, mixer, surface, time, display, event, key, image, mouse
 from typing import (
-    List,
-    Dict,
     Any,
     Union,
     Optional,
-    Tuple,
-    Type,
 )
 
 
@@ -34,7 +30,7 @@ class Note(Object):
         return ["game"]
 
     @property
-    def position(self) -> Tuple[int, int]:
+    def position(self) -> tuple[int, int]:
         return (self.lane, self.time)
 
     @property
