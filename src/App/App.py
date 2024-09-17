@@ -1,13 +1,11 @@
 from __future__ import annotations  # Required for forward references
 from typing import (
-    List,
-    Dict,
     Any,
     Union,
     Optional,
-    Tuple,
-    Type,
 )
+# from collections.abc import Iterable
+# Add more as needed
 
 from abc import ABC, abstractmethod  # Required for abstract classes
 
@@ -20,6 +18,8 @@ from States.Menu import Menu
 from States.Game import Game
 from States.LevelSelect import LevelSelect
 from States.Results import Results
+
+from Conf import Conf
 
 
 class App:
@@ -37,8 +37,8 @@ class App:
         self.audio = AudioWrapper()
         self.clock = pg.time.Clock()
 
-        display.set_mode(size=(1920, 1080), flags=pg.FULLSCREEN)
-        display.set_caption("RG 0.1 Alpha")
+        display.set_mode(size=(Conf.SCREEN_SIZE[0], Conf.SCREEN_SIZE[1]), flags=pg.FULLSCREEN)
+        display.set_caption("GAME TITLE")
 
     def run(self) -> None:
         pass  # Continue implementation with game loop & consider moving specific gamestate objects to their respective gamestate files
@@ -55,7 +55,7 @@ class Screen:
     def __init__(self) -> None:
         pass
 
-    def render(self, objects: List[Object]) -> None:
+    def render(self, objects: list[Object]) -> None:
         for obj in objects:
             pass
 
@@ -90,7 +90,7 @@ class AudioWrapper:
         self.extra3 = mixer.Channel(14)
         self.extra4 = mixer.Channel(15)
 
-        for file in os.listdir("Assets/Audio/"):
+        for file in os.listdir("../../Assets/Audio/"):
             if file.endswith(".wav"):
                 pass  # to be implemented...
 
@@ -112,7 +112,7 @@ class Object(ABC):  # Base class for all onscreen objects
     # Defines the gamestates in which the object is visible
     @property
     @abstractmethod
-    def position(self) -> Tuple[int, int]:
+    def position(self) -> tuple[int, int]:
         pass
 
     # Defines the position of the object WITH RESPECT TO GAMESTATE
