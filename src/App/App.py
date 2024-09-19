@@ -4,6 +4,7 @@ from typing import (
     Union,
     Optional,
 )
+
 # from collections.abc import Iterable
 # Add more as needed
 
@@ -37,7 +38,9 @@ class App:
         self.audio = AudioWrapper()
         self.clock = pg.time.Clock()
 
-        display.set_mode(size=(Conf.SCREEN_SIZE[0], Conf.SCREEN_SIZE[1]), flags=pg.FULLSCREEN)
+        display.set_mode(
+            size=(Conf.SCREEN_SIZE[0], Conf.SCREEN_SIZE[1]), flags=pg.FULLSCREEN
+        )
         display.set_caption("GAME TITLE")
 
     def run(self) -> None:
