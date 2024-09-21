@@ -1,6 +1,6 @@
 from ..App.App import Object
 import pygame as pg
-from pygame import font, mixer, surface, time, display, event, key, image, mouse
+from pygame import Rect, font, mixer, time, display, event, key, image, mouse, Surface
 from typing import (
     Any,
     Union,

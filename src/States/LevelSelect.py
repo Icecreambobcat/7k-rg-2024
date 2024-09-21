@@ -1,6 +1,6 @@
 from ..App.App import Object
 import pygame as pg
-from pygame import font, mixer, surface, time, display, event, key, image, mouse
+from pygame import Rect, font, mixer, time, display, event, key, image, mouse, Surface
 from typing import (
     Any,
     Union,
@@ -34,11 +34,11 @@ class Player(Object):
         return ["levelSelect"]
 
     @property
-    def position(self) -> Tuple[int, int]:
+    def position(self) -> tuple[int, int]:
         return (self.x, self.y)
 
     @property
-    def textures(self) -> dict[str, surface.Surface]:
+    def tex(self) -> dict[str, Surface]:
         return {"player": image.load("player.png")}
 
 
@@ -59,9 +59,9 @@ class Level(Object):
         return ["levelSelect"]
 
     @property
-    def position(self) -> Tuple[int, int]:
+    def position(self) -> tuple[int, int]:
         return (self.x, self.y)
 
     @property
-    def textures(self) -> dict[str, surface.Surface]:
+    def tex(self) -> dict[str, Surface]:
         return {"jacket": image.load(f"{self.level}_jacket.png")}

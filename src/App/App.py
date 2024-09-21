@@ -13,12 +13,12 @@ from abc import ABC, abstractmethod  # Required for abstract classes
 import os
 
 import pygame as pg
-from pygame import font, mixer, surface, time, display, event, key, image, mouse
+from pygame import Rect, font, mixer, time, display, event, key, image, mouse, Surface, sprite
 
-from States.Menu import Menu
-from States.Game import Game
-from States.LevelSelect import LevelSelect
-from States.Results import Results
+from ..States.Menu import Menu
+from ..States.Game import Game
+from ..States.LevelSelect import LevelSelect
+from ..States.Results import Results
 
 from Conf import Conf
 
@@ -36,7 +36,7 @@ class App:
         self.levelSelect = LevelSelect()
         self.results = Results()
         self.audio = AudioWrapper()
-        self.clock = pg.time.Clock()
+        self.clock = time.Clock()
 
         display.set_mode(
             size=(Conf.SCREEN_SIZE[0], Conf.SCREEN_SIZE[1]), flags=pg.FULLSCREEN
@@ -56,10 +56,12 @@ class Screen:
     """
 
     def __init__(self) -> None:
+        self.screen = Surface((Conf.SCREEN_SIZE[0], Conf.SCREEN_SIZE[1]))
         pass
 
     def render(self, objects: list[Object]) -> None:
-        for obj in objects:
+        # for obj in objects:
+        #     self.screen.blit(obj.tex, obj.rect, obj.rect)
             pass
 
 
@@ -101,7 +103,7 @@ class AudioWrapper:
         pass
 
 
-class Object(ABC):  # Base class for all onscreen objects
+class Object(ABC, sprite.Sprite):  # Base class for all onscreen objects
     """
     Pretty self explanatory, but this should be used to construct all onscreen objects
     Might import to specific gamestate files instead and instantiate the objects there before passing them back
@@ -109,7 +111,7 @@ class Object(ABC):  # Base class for all onscreen objects
 
     @property
     @abstractmethod
-    def gamestates(self) -> list[str]:
+    def gamestatas(self) -> list[str]:
         pass
 
     # Defines the gamestates in which the object is visible
@@ -122,7 +124,12 @@ class Object(ABC):  # Base class for all onscreen objects
 
     @property
     @abstractmethod
-    def textures(self) -> dict[str, surface.Surface]:
+    def tex(self) -> dict[str, Surface]:
         pass
 
     # Defines a dict of textures for each object type
+
+    @property
+    @abstractmethod
+    def rect(self) -> Rect:
+        pass

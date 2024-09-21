@@ -1,6 +1,6 @@
 from ..App.App import Object
 import pygame as pg
-from pygame import font, mixer, surface, time, display, event, key, image, mouse
+from pygame import Rect, font, mixer, time, display, event, key, image, mouse, Surface
 from typing import (
     Any,
     Union,
@@ -34,7 +34,7 @@ class Note(Object):
         return (self.lane, self.time)
 
     @property
-    def textures(self) -> dict[str, surface.Surface]:
+    def tex(self) -> dict[str, Surface]:
         return {
             "tap": image.load("tap.png"),
             "ln": image.load("ln.png"),
