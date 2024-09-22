@@ -1,4 +1,4 @@
-from __future__ import annotations  # Required for forward references
+# from __future__ import annotations  # Required for forward references
 from typing import (
     Any,
     Union,
