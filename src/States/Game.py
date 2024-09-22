@@ -16,8 +16,6 @@ from pygame import (
 )
 from typing import (
     Any,
-    Union,
-    Optional,
 )
 
 
@@ -49,8 +47,26 @@ class Note(Object):
 
 class Level:
     @staticmethod
-    def parse_meta(path: Path) -> dict[str, str | list]:
-        out = dict()
+    def parse_meta(path: Path) -> dict[str, Any]:
+        """
+        This is genuinely horrible in terms of type safety and is held together by hopes and dreams
+
+        This function reads the .osu file and returns a dictionary containing the level data in several nested dictionaries and lists
+        """
+        General: dict[str, str] = dict()
+        Metadata: dict[str, str | list[str]] = dict()
+        Difficulty: dict[str, str] = dict()
+        TimingPoints: list[list[str]] = list()
+        HitObjects: list[list[str]] = list()
+
+        out = {
+            "G": General,
+            "M": Metadata,
+            "D": Difficulty,
+            "T": TimingPoints,
+            "H": HitObjects,
+        }
+
         with path.open() as level:
             meta = level.readlines()
             section = ""
@@ -70,12 +86,10 @@ class Level:
 
                     case line if "[TimingPoints]" in line:
                         section = "TimingPoints"
-                        out["TimingPoints"] = []
                         continue
 
                     case line if "[HitObjects]" in line:
-                        section = "Hitobjects"
-                        out["HitObjects"] = []
+                        section = "HitObjects"
                         continue
 
                     case _:
@@ -87,26 +101,26 @@ class Level:
 
                 if section == "General":
                     pair = line.replace(" ", "").split(":")
-                    out[pair[0]] = pair[1]
+                    General[pair[0]] = pair[1]
 
                 elif section == "Metadata":
                     pair = line.split(":")
                     if pair[0] == "Tags":
-                        out[pair[0]] = pair[1].split(" ")
+                        Metadata[pair[0]] = pair[1].split(" ")
                         continue
-                    out[pair[0]] = pair[1]
+                    Metadata[pair[0]] = pair[1]
 
                 elif section == "Difficulty":
                     pair = line.split(":")
-                    out[pair[0]] = pair[1]
+                    Difficulty[pair[0]] = pair[1]
 
                 elif section == "TimingPoints":
                     point = line.split(",")
-                    out["TimingPoints"].append(point)
+                    TimingPoints.append(point)
 
-                elif section == "Hitobjects":
+                elif section == "HitObjects":
                     obj = line.split(",")
-                    out["HitObjects"].append(obj)
+                    HitObjects.append(obj)
 
                 else:
                     pass  # ignore file header
@@ -114,4 +128,9 @@ class Level:
         return out
 
     def __init__(self, path: Path) -> None:
-        pass
+        self.data = Level.parse_meta(path)
+        self.notes: list[list[str]] = self.data["H"]
+        self.tpoints: list[list[str]] = self.data["T"]
+        self.meta: dict[str, str | list[str]] = self.data["M"]
+        self.info: dict[str, str] = self.data["G"]
+        self.diff: dict[str, str] = self.data["D"]
