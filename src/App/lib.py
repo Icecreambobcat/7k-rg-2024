@@ -16,7 +16,7 @@ class Lib:
         This function is intended to load all the images unrelated to the rhythm game section of the app.
         Images are sorted into a dictionary with key representing image use and a list of path objects as its values.
         """
-        image_dir = Path(f"{Lib.GET_ROOT()}/Assets/Images")
+        image_dir = Path(f"{Lib.PROJECT_ROOT}/Assets/Images")
         out = {
             "char_sprite": [],
             "background": [],

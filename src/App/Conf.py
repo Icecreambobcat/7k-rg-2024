@@ -22,14 +22,10 @@ class Conf:
 
     SCREEN_SIZE: tuple = (1920, 1080)
 
-    def __init__(self):
-        # call this from somewhere else if there is no loadconf
+    @staticmethod
+    def loadConf():
         pass
 
-
-def loadConf():
-    pass
-
-
-def saveConf():
-    pass
+    @staticmethod
+    def saveConf():
+        pass

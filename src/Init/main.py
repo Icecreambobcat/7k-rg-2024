@@ -38,8 +38,8 @@ def main() -> None:
         log = True
 
     elif args.clean:
-        cwd = Lib.GET_ROOT()
-        log_path = os.path.join(cwd, "STO/log")
+        root = Lib.PROJECT_ROOT
+        log_path = os.path.join(root, "STO/log")
 
         if os.path.exists(log_path):
             for item in os.listdir(log_path):
