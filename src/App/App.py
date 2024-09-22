@@ -111,7 +111,7 @@ class Object(ABC, sprite.Sprite):  # Base class for all onscreen objects
 
     @property
     @abstractmethod
-    def gamestatas(self) -> list[str]:
+    def gamestates(self) -> list[str]:
         pass
 
     # Defines the gamestates in which the object is visible
