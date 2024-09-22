@@ -1,7 +1,8 @@
 from typing import Any, Union, Optional
+from lib import GET_ROOT
+import os
 
-# from ..App.lib import ...
 
-
-def parser(file) -> None:
+def level_load(file) -> None:
+    dir = os.path.join(GET_ROOT(), "Assets")
     pass
