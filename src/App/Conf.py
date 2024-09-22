@@ -1,5 +1,5 @@
 from pickle import load, dump
-from lib import GET_ROOT
+from lib import Lib
 
 # from pyautogui import size
 

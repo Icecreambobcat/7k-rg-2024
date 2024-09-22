@@ -1,6 +1,19 @@
 from App.App import Object
 import pygame as pg
-from pygame import Rect, font, mixer, time, display, event, key, image, mouse, Surface
+from pygame import (
+    Rect,
+    font,
+    mixer,
+    surface,
+    time,
+    display,
+    event,
+    key,
+    image,
+    mouse,
+    Surface,
+    sprite,
+)
 from typing import (
     Any,
     Union,
@@ -26,6 +39,10 @@ class Player(Object):
     """
 
     def __init__(self) -> None:
+        # pygame calls
+        sprite.Sprite.__init__(self)
+
+        # locally defined
         self.x = 0
         self.y = 0
 

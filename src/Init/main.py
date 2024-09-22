@@ -1,11 +1,12 @@
 from App.App import App
 
 from App.Conf import Conf
+
 # from sys import exit
 from argparse import ArgumentParser
 import os
 import shutil
-import subprocess
+from App.lib import Lib
 
 
 def main() -> None:
@@ -39,22 +40,22 @@ def main() -> None:
         log = True
 
     elif args.clean:
-        cwd = os.getcwd()
-        log_path = os.path.join(cwd, "../../STO/log")
+        cwd = Lib.GET_ROOT()
+        log_path = os.path.join(cwd, "STO/log")
 
         if os.path.exists(log_path):
             for item in os.listdir(log_path):
                 item_path = os.path.join(log_path, item)
-                
+
                 if os.path.isfile(item_path):
                     os.remove(item_path)
                 elif os.path.isdir(item_path):
                     shutil.rmtree(item_path)
-            
+
             print(f"All contents of {log_path} have been deleted.")
         else:
             print(f"Log directory {log_path} does not exist.")
-    
+
         exit()
 
     Game = App(log)

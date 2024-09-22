@@ -13,7 +13,19 @@ from abc import ABC, abstractmethod  # Required for abstract classes
 import os
 
 import pygame as pg
-from pygame import Rect, font, mixer, time, display, event, key, image, mouse, Surface, sprite
+from pygame import (
+    Rect,
+    font,
+    mixer,
+    time,
+    display,
+    event,
+    key,
+    image,
+    mouse,
+    Surface,
+    sprite,
+)
 
 from States.Menu import Menu
 from States.Game import Game
@@ -63,7 +75,7 @@ class Screen:
     def render(self, objects: list[Object]) -> None:
         # for obj in objects:
         #     self.screen.blit(obj.tex, obj.rect, obj.rect)
-            pass
+        pass
 
 
 class AudioWrapper:
