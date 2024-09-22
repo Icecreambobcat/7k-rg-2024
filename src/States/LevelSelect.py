@@ -55,11 +55,13 @@ class Player(Object):
         return (self.x, self.y)
 
 
-class Level(Object):
+class LevelObj(Object):
     """
-    The level class is used for the song select screen to fulfill the requirement of a selectable level
+    The levelobj class is used for the song select screen to fulfill the requirement of a selectable level
     Levels are read from the parser and then loaded as levels to be rendered in a predefined order
     Functionally speaking this is also the enemy object
+
+    This class is the graphical representation of selectable songs
     """
 
     def __init__(self, x, y, level) -> None:
