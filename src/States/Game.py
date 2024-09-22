@@ -32,6 +32,8 @@ class Note(Object):
     """
 
     def __init__(self, lane, time, noteType) -> None:
+        sprite.Sprite.__init__(self)
+
         self.lane = lane
         self.time = time
         self.noteType = noteType
