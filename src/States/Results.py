@@ -15,8 +15,6 @@ from pygame import (
 )
 from typing import (
     Any,
-    Union,
-    Optional,
 )
 
 
