@@ -1,44 +1,63 @@
-from ..App.App import App
+from App.App import App
 
-# from ..App.Conf import Conf
-# # from sys import exit
-# from argparse import ArgumentParser
-# import os.path as path
-# import subprocess
+from App.Conf import Conf
+# from sys import exit
+from argparse import ArgumentParser
+import os
+import shutil
+import subprocess
 
 
 def main() -> None:
-    # parser = ArgumentParser()
-    # group = parser.add_mutually_exclusive_group()
-    #
-    # group.add_argument(
-    #     "--version",
-    #     action="version",
-    #     version=f"{Conf.VERSION}",
-    #     help="Returns the version of the program",
-    # )
-    # group.add_argument(
-    #     "-l",
-    #     "--log",
-    #     action="store_true",
-    #     help="Logs events to a file",
-    # )
-    # group.add_argument(
-    #     "-c",
-    #     "--clean",
-    #     action="store_true",
-    #     help="Cleans extra files",
-    # )
-    #
-    # args = parser.parse_args()
-    #
-    # if args.log:
-    #     pass
-    #
-    # if args.clean:
-    #     pass
+    log = False
 
-    Game = App()
+    parser = ArgumentParser()
+    group = parser.add_mutually_exclusive_group()
+
+    group.add_argument(
+        "--version",
+        action="version",
+        version=f"{Conf.VERSION}",
+        help="Returns the version of the program",
+    )
+    group.add_argument(
+        "-l",
+        "--log",
+        action="store_true",
+        help="Logs events to a file",
+    )
+    group.add_argument(
+        "-c",
+        "--clean",
+        action="store_true",
+        help="Cleans extra files",
+    )
+
+    args = parser.parse_args()
+
+    if args.log:
+        log = True
+
+    elif args.clean:
+        cwd = os.getcwd()
+        log_path = os.path.join(cwd, "../../STO/log")
+
+        if os.path.exists(log_path):
+            for item in os.listdir(log_path):
+                item_path = os.path.join(log_path, item)
+                
+                if os.path.isfile(item_path):
+                    os.remove(item_path)
+                elif os.path.isdir(item_path):
+                    shutil.rmtree(item_path)
+            
+            print(f"All contents of {log_path} have been deleted.")
+        else:
+            print(f"Log directory {log_path} does not exist.")
+    
+        exit()
+
+    Game = App(log)
     Game.run()
 
 
