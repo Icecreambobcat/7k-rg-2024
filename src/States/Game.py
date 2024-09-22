@@ -1,4 +1,4 @@
-from ..App.App import Object
+from App.App import Object
 import pygame as pg
 from pygame import Rect, font, mixer, time, display, event, key, image, mouse, Surface
 from typing import (
@@ -32,12 +32,3 @@ class Note(Object):
     @property
     def position(self) -> tuple[int, int]:
         return (self.lane, self.time)
-
-    @property
-    def tex(self) -> dict[str, Surface]:
-        return {
-            "tap": image.load("tap.png"),
-            "ln": image.load("ln.png"),
-            "lnBody": image.load("lnBody.png"),
-            "lnEnd": image.load("lnEnd.png"),
-        }

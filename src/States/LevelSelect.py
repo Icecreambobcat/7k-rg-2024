@@ -1,4 +1,4 @@
-from ..App.App import Object
+from App.App import Object
 import pygame as pg
 from pygame import Rect, font, mixer, time, display, event, key, image, mouse, Surface
 from typing import (
@@ -37,10 +37,6 @@ class Player(Object):
     def position(self) -> tuple[int, int]:
         return (self.x, self.y)
 
-    @property
-    def tex(self) -> dict[str, Surface]:
-        return {"player": image.load("player.png")}
-
 
 class Level(Object):
     """
@@ -61,7 +57,3 @@ class Level(Object):
     @property
     def position(self) -> tuple[int, int]:
         return (self.x, self.y)
-
-    @property
-    def tex(self) -> dict[str, Surface]:
-        return {"jacket": image.load(f"{self.level}_jacket.png")}

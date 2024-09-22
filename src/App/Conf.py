@@ -1,4 +1,5 @@
-import pickle
+from pickle import load, dump
+from lib import GET_ROOT
 
 # from pyautogui import size
 
@@ -11,7 +12,7 @@ class Conf:
     Otherwise the custom configs will be loaded memory and used
     """
 
-    VERSION = "VERSION PLACEHOLDER"
+    VERSION = "0.1.0 Dev"
 
     WINDOW = {"PLACEHOLDER": "PLACEHOLDER"}
 

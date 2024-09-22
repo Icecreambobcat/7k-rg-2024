@@ -15,10 +15,10 @@ import os
 import pygame as pg
 from pygame import Rect, font, mixer, time, display, event, key, image, mouse, Surface, sprite
 
-from ..States.Menu import Menu
-from ..States.Game import Game
-from ..States.LevelSelect import LevelSelect
-from ..States.Results import Results
+from States.Menu import Menu
+from States.Game import Game
+from States.LevelSelect import LevelSelect
+from States.Results import Results
 
 from Conf import Conf
 
@@ -28,7 +28,7 @@ class App:
     The app class handles the game instance itself, being instantiated once and being the top-level class for this game
     """
 
-    def __init__(self) -> None:
+    def __init__(self, log) -> None:
         pg.init()
         self.screen = Screen()
         self.menu = Menu()
@@ -37,6 +37,7 @@ class App:
         self.results = Results()
         self.audio = AudioWrapper()
         self.clock = time.Clock()
+        self.log = log
 
         display.set_mode(
             size=(Conf.SCREEN_SIZE[0], Conf.SCREEN_SIZE[1]), flags=pg.FULLSCREEN
@@ -118,18 +119,4 @@ class Object(ABC, sprite.Sprite):  # Base class for all onscreen objects
     @property
     @abstractmethod
     def position(self) -> tuple[int, int]:
-        pass
-
-    # Defines the position of the object WITH RESPECT TO GAMESTATE
-
-    @property
-    @abstractmethod
-    def tex(self) -> dict[str, Surface]:
-        pass
-
-    # Defines a dict of textures for each object type
-
-    @property
-    @abstractmethod
-    def rect(self) -> Rect:
         pass
