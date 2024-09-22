@@ -26,7 +26,8 @@ class LevelSelect:
     The structure of the screen should be imported from conf
     """
 
-    def __init__(self) -> None:
+    @staticmethod
+    def level_select_loop() -> None:
         pass
 
 
@@ -43,10 +44,6 @@ class Player(Object):
         # locally defined
         self.x = 0
         self.y = 0
-
-    @property
-    def gamestates(self) -> list[str]:
-        return ["levelSelect"]
 
     @property
     def position(self) -> tuple[int, int]:

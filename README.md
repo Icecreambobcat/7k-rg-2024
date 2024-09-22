@@ -8,6 +8,8 @@ A 4k rhythm game built in python for school
 ### Python dependancies
 - pathlib
   - `pip3 install pathlib`
+- argparse
+  - `pip3 install argparse`
 
 ## How to run
 - Run the following in your terminal after making sure you have the dependancies installed

@@ -1,4 +1,5 @@
-from pickle import load, dump
+from pathlib import Path
+from pickle import dump, load
 from lib import Lib
 
 # from pyautogui import size
@@ -6,10 +7,7 @@ from lib import Lib
 
 class Conf:
     """
-    The conf class is used to handle fixed and custom variables that define the application
-    Fixed configs are typically used for debugging and compatability
-    If there is no set of config files then the default will be used and saved
-    Otherwise the custom configs will be loaded memory and used
+    Handles fixed methods and values passed to the app at runtime
     """
 
     VERSION = "0.1.0 Dev"
@@ -22,10 +20,18 @@ class Conf:
 
     SCREEN_SIZE: tuple = (1920, 1080)
 
+    RUNTIME_CONF = None
+
     @staticmethod
     def loadConf():
-        pass
+        """ Placeholder for future implementation """
+        confs = Path(Lib.PROJECT_ROOT, "STO", "conf.bin")
+        with confs.open("rb") as f:
+            Conf.RUNTIME_CONF = load(f)
 
     @staticmethod
     def saveConf():
-        pass
+        """ Placeholder for future implementation """
+        confs = Path(Lib.PROJECT_ROOT, "STO", "conf.bin")
+        with confs.open("wb") as f:
+            dump(Conf.RUNTIME_CONF, f)

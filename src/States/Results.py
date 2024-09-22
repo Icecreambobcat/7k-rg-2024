@@ -4,6 +4,7 @@ from pygame import (
     Rect,
     font,
     mixer,
+    surface,
     time,
     display,
     event,
@@ -19,5 +20,12 @@ from typing import (
 
 
 class Results:
-    def __init__(self) -> None:
+    """
+    Results screen loop & logic
+    """
+
+    @staticmethod
+    def results_loop() -> None:
         pass
+
+    pass

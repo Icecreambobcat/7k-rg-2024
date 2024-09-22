@@ -4,6 +4,7 @@ from pygame import (
     Rect,
     font,
     mixer,
+    surface,
     time,
     display,
     event,
@@ -19,5 +20,12 @@ from typing import (
 
 
 class Menu:
-    def __init__(self) -> None:
+    """
+    Menu loop & logic
+    """
+
+    @staticmethod
+    def menu_loop() -> None:
         pass
+
+    pass

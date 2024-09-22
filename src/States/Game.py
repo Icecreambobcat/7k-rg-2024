@@ -20,40 +20,62 @@ from typing import (
 
 
 class Game:
-    def __init__(self) -> None:
+    @staticmethod
+    def ingame_loop() -> None:
         pass
 
 
 class Note(Object):
     """
-    The note class is used for the rhythm game part of the game
-    All note objects are first loaded into memory
-    Then a second pass should be completed for LNs
+    The note parent class contains both tap notes and LNs that should be loaded to memory at runtime
+
+    TODO: Optimise runtime overhead of loading stuff
     """
 
-    def __init__(self, lane, time, noteType) -> None:
-        sprite.Sprite.__init__(self)
+    @staticmethod
+    def calc_pos() -> int:
+        """
+        note absolute time - current delta time * multiplier + constant
 
+        TODO: Implement
+        """
+        return 0
+
+
+class TapNote(Note):
+    """
+    tapnote logic
+    """
+
+    def __init__(self, lane, time) -> None:
         self.lane = lane
         self.time = time
-        self.noteType = noteType
-
-    @property
-    def gamestates(self) -> list[str]:
-        return ["game"]
 
     @property
     def position(self) -> tuple[int, int]:
-        return (self.lane, self.time)
+        return (0, 0)  # PLACEHOLDER - CHANGE ASAP
+
+
+class LongNote(Note):
+    """
+    LN logic
+    """
+
+    def __init__(self) -> None:
+        pass
+
+    @property
+    def position(self) -> tuple[int, int]:
+        return (0, 0)  # PLACEHOLDER - CHANGE ASAP
 
 
 class Level:
     @staticmethod
     def parse_meta(path: Path) -> dict[str, Any]:
         """
-        This is genuinely horrible in terms of type safety and is held together by hopes and dreams
+        Horrific type safety but gets the job done
 
-        This function reads the .osu file and returns a dictionary containing the level data in several nested dictionaries and lists
+        Reads the .osu file and returns a dictionary containing the level data in several nested dictionaries and lists
         """
         General: dict[str, str] = dict()
         Metadata: dict[str, str | list[str]] = dict()
@@ -94,6 +116,14 @@ class Level:
                         section = "HitObjects"
                         continue
 
+                    case line if "[Editor]" in line:
+                        section = "Editor"
+                        continue
+
+                    case line if "[Events]" in line:
+                        section = "Events"
+                        continue
+
                     case _:
                         if line:
                             pass
@@ -101,7 +131,10 @@ class Level:
                             section = ""
                             continue
 
-                if section == "General":
+                if section == "Editor" or section == "Events":
+                    continue
+
+                elif section == "General":
                     pair = line.replace(" ", "").split(":")
                     General[pair[0]] = pair[1]
 
@@ -125,7 +158,7 @@ class Level:
                     HitObjects.append(obj)
 
                 else:
-                    pass  # ignore file header
+                    pass
 
         return out
 

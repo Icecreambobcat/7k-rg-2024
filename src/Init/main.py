@@ -14,6 +14,7 @@ def main() -> None:
     group = parser.add_mutually_exclusive_group()
 
     group.add_argument(
+        "-v",
         "--version",
         action="version",
         version=f"{Conf.VERSION}",

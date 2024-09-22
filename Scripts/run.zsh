@@ -62,5 +62,5 @@ else
   if ask_for_confirmation "Unexpected filestructure detected. Attempt to reinstall?"; then
     rm -rf $REPO_DIR && git clone https://github.com/Icecreambobcat/4k-rg-2024 "$REPO_DIR"
   else
-    echo "It is strongly advised to reinstall given the unknown state of the filestructure of the project. However, proceed at your own risk."
+    echo "It is strongly advised to reinstall given the unknown state of the filestructure of the project. Proceed at your own risk."
   fi

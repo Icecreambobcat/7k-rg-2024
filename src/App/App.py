@@ -41,10 +41,6 @@ class App:
     def __init__(self, log) -> None:
         pg.init()
         self.screen = Screen()
-        self.menu = Menu()
-        self.game = Game()
-        self.levelSelect = LevelSelect()
-        self.results = Results()
         self.audio = AudioWrapper()
         self.clock = time.Clock()
         self.log = log
@@ -120,12 +116,6 @@ class Object(ABC, sprite.Sprite):  # Base class for all onscreen objects
     Might import to specific gamestate files instead and instantiate the objects there before passing them back
     """
 
-    @property
-    @abstractmethod
-    def gamestates(self) -> list[str]:
-        pass
-
-    # Defines the gamestates in which the object is visible
     @property
     @abstractmethod
     def position(self) -> tuple[int, int]:
