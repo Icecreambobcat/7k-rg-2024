@@ -4,7 +4,7 @@ from lib import Lib
 from pathlib import Path
 
 
-def level_load(file) -> dict[str, Level]:
+def level_load(file: Path) -> dict[str, Level]:
     out = dict()
     dir = Path(f"{Lib.PROJECT_ROOT}/Assets/Levels")
     for file in dir.iterdir():
