@@ -1,5 +1,6 @@
 from pathlib import Path
-from App.App import Object
+from App.App import Object, App
+from App.Conf import Conf
 import pygame as pg
 from pygame import (
     Rect,
@@ -22,23 +23,25 @@ from typing import (
 class Game:
     @staticmethod
     def ingame_loop() -> None:
+        SONG_CLOCK = time.Clock()
+        # AUDIO = 
         pass
 
 
 class Note(Object):
     """
-    The note parent class contains both tap notes and LNs that should be loaded to memory at runtime
+    Strictly only a parent class to contain TapNote and LongNote as well as common logic
 
     TODO: Optimise runtime overhead of loading stuff
     """
 
-    @staticmethod
-    def calc_pos() -> int:
+    def calc_pos(self) -> int:
         """
         note absolute time - current delta time * multiplier + constant
 
         TODO: Implement
         """
+        # out = (self.time - App.DELTA_TIME) * Conf.MULTIPLIER + Conf.CONSTANT
         return 0
 
 
@@ -47,13 +50,19 @@ class TapNote(Note):
     tapnote logic
     """
 
-    def __init__(self, lane, time) -> None:
+    def __init__(self, lane, note_time) -> None:
+        sprite.Sprite.__init__(self)
+
         self.lane = lane
-        self.time = time
+        self.time = note_time
 
     @property
     def position(self) -> tuple[int, int]:
-        return (0, 0)  # PLACEHOLDER - CHANGE ASAP
+        return (Note.calc_pos(self), 0)  # PLACEHOLDER - CHANGE ASAP
+
+    @property
+    def image(self) -> Surface:
+        return self.image
 
 
 class LongNote(Note):
@@ -61,12 +70,20 @@ class LongNote(Note):
     LN logic
     """
 
-    def __init__(self) -> None:
-        pass
+    def __init__(self, lane, note_time, note_endtime) -> None:
+        sprite.Sprite.__init__(self)
+
+        self.lane = lane
+        self.time = note_time
+        self.endtime = note_endtime
 
     @property
     def position(self) -> tuple[int, int]:
         return (0, 0)  # PLACEHOLDER - CHANGE ASAP
+
+    @property
+    def image(self) -> Surface:
+        return self.image
 
 
 class Level:
