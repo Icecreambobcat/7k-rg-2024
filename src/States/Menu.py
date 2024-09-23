@@ -1,3 +1,4 @@
+from __future__ import annotations
 from App.App import Object
 import pygame as pg
 from pygame import (
