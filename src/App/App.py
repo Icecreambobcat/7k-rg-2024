@@ -1,4 +1,5 @@
 from __future__ import annotations  # Required for forward references
+from pathlib import Path
 from typing import (
     Any,
 )
@@ -25,6 +26,7 @@ from pygame import (
     sprite,
 )
 
+from App.lib import Lib
 from States.Menu import Menu
 from States.Game import Game
 from States.LevelSelect import LevelSelect
@@ -51,6 +53,10 @@ class App:
         display.set_caption("GAME TITLE")
 
     def run(self) -> None:
+        GAME = True
+        while GAME:
+            self.clock.tick_busy_loop(90)
+            break
         pass  # Continue implementation with game loop & consider moving specific gamestate objects to their respective gamestate files
 
 
@@ -74,40 +80,64 @@ class Screen:
 
 class AudioWrapper:
     """
-    Implementation for audio & room for expansion
-    All pygame audio functions should be called from here
+    Implementation for a 16 channel audio system
+
+    Contains methods to control audio but should not be instantiated as an object
     """
 
-    def __init__(self) -> None:
+    AUDIO_FILES: dict[str, mixer.Sound] = dict()
+    bgm: mixer.Channel
+    playerFX: mixer.Channel
+    gameFX: mixer.Channel
+    lane0: mixer.Channel
+    lane1: mixer.Channel
+    lane2: mixer.Channel
+    lane3: mixer.Channel
+    lane4: mixer.Channel
+    lane5: mixer.Channel
+    lane6: mixer.Channel
+    song: mixer.Channel
+    extra0: mixer.Channel
+    extra1: mixer.Channel
+    extra2: mixer.Channel
+    extra3: mixer.Channel
+    extra4: mixer.Channel
+
+
+    @staticmethod
+    def init_audio() -> None:
         mixer.init()
         mixer.set_num_channels(16)
 
-        self.bgm = mixer.Channel(0)
-        self.playerFX = mixer.Channel(1)
-        self.gameFX = mixer.Channel(2)
+        AudioWrapper.bgm = mixer.Channel(0)
+        AudioWrapper.playerFX = mixer.Channel(1)
+        AudioWrapper.gameFX = mixer.Channel(2)
 
-        self.lane0 = mixer.Channel(3)
-        self.lane1 = mixer.Channel(4)
-        self.lane2 = mixer.Channel(5)
-        self.lane3 = mixer.Channel(6)
-        self.lane4 = mixer.Channel(7)
-        self.lane5 = mixer.Channel(8)
-        self.lane6 = mixer.Channel(9)
+        AudioWrapper.lane0 = mixer.Channel(3)
+        AudioWrapper.lane1 = mixer.Channel(4)
+        AudioWrapper.lane2 = mixer.Channel(5)
+        AudioWrapper.lane3 = mixer.Channel(6)
+        AudioWrapper.lane4 = mixer.Channel(7)
+        AudioWrapper.lane5 = mixer.Channel(8)
+        AudioWrapper.lane6 = mixer.Channel(9)
 
-        self.song = mixer.Channel(10)
+        AudioWrapper.song = mixer.Channel(10)
 
-        self.extra0 = mixer.Channel(11)
-        self.extra1 = mixer.Channel(12)
-        self.extra2 = mixer.Channel(13)
-        self.extra3 = mixer.Channel(14)
-        self.extra4 = mixer.Channel(15)
+        AudioWrapper.extra0 = mixer.Channel(11)
+        AudioWrapper.extra1 = mixer.Channel(12)
+        AudioWrapper.extra2 = mixer.Channel(13)
+        AudioWrapper.extra3 = mixer.Channel(14)
+        AudioWrapper.extra4 = mixer.Channel(15)
 
-        for file in os.listdir("../../Assets/Audio/"):
-            if file.endswith(".wav"):
-                pass  # to be implemented...
+        dir = Path(Lib.PROJECT_ROOT, "Assets", "Audio")
+        for file in dir.iterdir():
+            if file.name.endswith((".wav", ".mp3", ".ogg", ".flac")):
+                AudioWrapper.AUDIO_FILES[file.name] = mixer.Sound(file)
 
-    def play(self, channel: int, sound: mixer.Sound) -> None:
+    @staticmethod
+    def play(sound: mixer.Sound, channel: mixer.Channel) -> None:
         pass
+
 
 
 class Object(ABC, sprite.Sprite):  # Base class for all onscreen objects
@@ -119,4 +149,9 @@ class Object(ABC, sprite.Sprite):  # Base class for all onscreen objects
     @property
     @abstractmethod
     def position(self) -> tuple[int, int]:
+        pass
+
+    @property
+    @abstractmethod
+    def image(self) -> Surface:
         pass
