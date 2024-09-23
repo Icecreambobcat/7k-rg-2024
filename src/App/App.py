@@ -16,6 +16,7 @@ from pygame import (
     Rect,
     font,
     mixer,
+    rect,
     time,
     display,
     event,
@@ -103,7 +104,6 @@ class AudioWrapper:
     extra3: mixer.Channel
     extra4: mixer.Channel
 
-
     @staticmethod
     def init_audio() -> None:
         mixer.init()
@@ -138,6 +138,21 @@ class AudioWrapper:
     def play(sound: mixer.Sound, channel: mixer.Channel) -> None:
         pass
 
+    @staticmethod
+    def pause(sound: mixer.Sound, channel: mixer.Channel) -> None:
+        pass
+
+    @staticmethod
+    def stop(sound: mixer.Sound, channel: mixer.Channel) -> None:
+        pass
+
+    @staticmethod
+    def fadeout(sound: mixer.Sound, channel: mixer.Channel) -> None:
+        pass
+
+    @staticmethod
+    def set_volume(sound: mixer.Sound, channel: mixer.Channel, volume: int) -> None:
+        pass
 
 
 class Object(ABC, sprite.Sprite):  # Base class for all onscreen objects
@@ -154,4 +169,9 @@ class Object(ABC, sprite.Sprite):  # Base class for all onscreen objects
     @property
     @abstractmethod
     def image(self) -> Surface:
+        pass
+
+    @property
+    @abstractmethod
+    def rect(self) -> rect.Rect:
         pass
