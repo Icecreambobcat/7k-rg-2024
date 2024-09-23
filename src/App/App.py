@@ -38,44 +38,26 @@ from Conf import Conf
 
 class App:
     """
-    The app class handles the game instance itself, being instantiated once and being the top-level class for this game
+    Isolates the game instance
+    Should only be instantiated once
     """
 
     def __init__(self, log) -> None:
         pg.init()
-        self.screen = Screen()
-        self.audio = AudioWrapper()
-        self.clock = time.Clock()
-        self.log = log
-
-        display.set_mode(
+        self.Screen = display.set_mode(
             size=(Conf.SCREEN_SIZE[0], Conf.SCREEN_SIZE[1]), flags=pg.FULLSCREEN
         )
+        self.Audio = AudioWrapper
+        self.Clock = time.Clock()
+        self.Log = log
+
         display.set_caption("GAME TITLE")
 
     def run(self) -> None:
         GAME = True
         while GAME:
-            self.clock.tick_busy_loop(90)
+            self.Clock.tick_busy_loop(90)
             break
-        pass
-
-
-class Screen:
-    """
-    Rendering implementation
-    A list of objects should be passed to the render method
-    yet to implement checks for whether something should be rendered
-    either check somewhere else or implement here
-    """
-
-    def __init__(self) -> None:
-        self.screen = Surface((Conf.SCREEN_SIZE[0], Conf.SCREEN_SIZE[1]))
-        pass
-
-    def render(self, objects: list[Object]) -> None:
-        # for obj in objects:
-        #     self.screen.blit(obj.tex, obj.rect, obj.rect)
         pass
 
 
@@ -106,7 +88,6 @@ class AudioWrapper:
 
     @staticmethod
     def init_audio() -> None:
-        mixer.init()
         mixer.set_num_channels(16)
 
         AudioWrapper.bgm = mixer.Channel(0)
