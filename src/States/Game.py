@@ -1,3 +1,4 @@
+from __future__ import annotations
 from pathlib import Path
 from App.App import Object, App
 from App.Conf import Conf
@@ -22,10 +23,22 @@ from typing import (
 
 class Game:
     @staticmethod
-    def ingame_loop() -> None:
+    def ingame_loop(level: Level, auto: bool) -> None:
         SONG_CLOCK = time.Clock()
-        # AUDIO = 
-        pass
+        AUDIO = Game.get_audio(level)
+
+        INGAME = True
+        while INGAME:
+            break
+
+    @staticmethod
+    def get_audio(level: Level) -> mixer.Sound:
+        """
+        For fetching the level audio for a level
+        """
+
+        PLACEHOLDER = mixer.Sound("PLACEHOLDER")
+        return PLACEHOLDER
 
 
 class Note(Object):
