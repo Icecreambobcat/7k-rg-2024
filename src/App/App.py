@@ -58,7 +58,7 @@ class App:
         while GAME:
             self.clock.tick_busy_loop(90)
             break
-        pass  # Continue implementation with game loop & consider moving specific gamestate objects to their respective gamestate files
+        pass
 
 
 class Screen:
