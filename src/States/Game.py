@@ -33,10 +33,12 @@ class Game:
     START_TIME: int
     PASSED_TIME: int
 
+    STATIC = sprite.Group()
+    # Everything non rhythm game related that's still loaded
     LOADED = sprite.Group()
     # All note sprites are first loaded into this group
     ACTIVE = sprite.Group()
-    # Notes that shold be visible are then moved into this group
+    # Notes that should be visible are then moved into this group
     PASSED = sprite.Group()
     # Notes should be moved here once hit and should then stop being updated and rendered
 
@@ -92,8 +94,11 @@ class Game:
             )
             return AUDIO
         else:
-            raise FileNotFoundError(
-                "Audio file not found in level metadata:", level.meta["TitleUnicode"]
+            App.quit_app(
+                FileNotFoundError(
+                    "Audio file not found in level metadata:",
+                    level.meta["TitleUnicode"],
+                )
             )
 
 
@@ -116,10 +121,10 @@ class Note(Object):
 
     @property
     @abstractmethod
-    def state(self) -> str:
+    def state(self) -> sprite.Group:
         """
-        For tapnotes: active and hit/missed
-        For LNs: active, held, hit and missed
+        Handles whether objects are still updated
+        hits and misses are handled immediately before notes are passed here
         """
         pass
 
@@ -156,35 +161,28 @@ class TapNote(Note):
 
     @property
     def position(self) -> tuple[int, int]:
-        return (Note.calc_pos(self), 0)  # PLACEHOLDER - CHANGE ASAP
+        return (self.lane, self.calc_pos())
 
     @property
     def time(self) -> int:
         return self._time
 
-    @time.setter
-    def time(self, val: int) -> None:
-        self._time = val
-
     @property
     def lane(self) -> int:
         return self._lane
-
-    @lane.setter
-    def lane(self, value) -> None:
-        self._lane = value
 
     @property
     def rect(self) -> Rect:
         return self.image.get_rect()
 
     @property
-    def state(self) -> str:
+    def state(self) -> sprite.Group:
         return self._state
 
     @state.setter
-    def state(self, value) -> None:
+    def state(self, value: sprite.Group) -> None:
         self._state = value
+        self.add(value)
 
 
 class LongNote(Note):
@@ -201,43 +199,32 @@ class LongNote(Note):
 
     @property
     def position(self) -> tuple[int, int]:
-        return (0, 0)  # PLACEHOLDER - CHANGE ASAP
+        return (Note.calc_pos(self), self.lane)
 
     @property
     def time(self) -> int:
         return self._time
 
-    @time.setter
-    def time(self, value: int) -> None:
-        self._time = value
-
     @property
     def endtime(self) -> int:
         return self._endtime
 
-    @endtime.setter
-    def endtime(self, value: int) -> None:
-        self._endtime = value
-
     @property
     def lane(self) -> int:
         return self._lane
-
-    @lane.setter
-    def lane(self, value) -> None:
-        self._lane = value
 
     @property
     def rect(self) -> Rect:
         return self.image.get_rect()
 
     @property
-    def state(self) -> str:
+    def state(self) -> sprite.Group:
         return self._state
 
     @state.setter
-    def state(self, value) -> None:
+    def state(self, value: sprite.Group) -> None:
         self._state = value
+        self.add(value)
 
     @property
     def image_body(self) -> Surface:
@@ -249,11 +236,21 @@ class LongNote(Note):
     def rect_body(self) -> Rect:
         return self.image_body.get_rect()
 
-    @property
-    def image_tail(self) -> Surface:
-        tex = image.load(Conf.NOTE_TEX_TAIL)
-        tex = transform.scale(tex, (200, 100))
-        return tex
+    """
+    Hold tail textures MAY be implemented for certain skins and textures
+    But will not be implemented with this version as most players prefer to have them invisible
+
+    These are commented out but are perfectly valid implementations otherwise
+    """
+    # @property
+    # def image_tail(self) -> Surface:
+    #     tex = image.load(Conf.NOTE_TEX_TAIL)
+    #     tex = transform.scale(tex, (200, 100))
+    #     return tex
+
+    # @property
+    # def rect_tail(self) -> Rect:
+    #     return self.image_tail.get_rect()
 
 
 class Level_MEMORY:
@@ -263,7 +260,7 @@ class Level_MEMORY:
     """
 
     @staticmethod
-    def load_notes(line: list[str]) -> Note | None:
+    def load_notes(line: list[str]) -> Note:
         obj_type = None
         time = int(line[2])
         endtime = time
@@ -274,13 +271,13 @@ class Level_MEMORY:
         elif int(line[3]) == 7:
             obj_type = LongNote
             endtime = int(line[5])
-        else:
-            App.quit_app(FileNotFoundError("Loaded level file is of incorrect format."))
 
         if obj_type == TapNote:
             return TapNote(lane, time)
         elif obj_type == LongNote:
             return LongNote(lane, time, endtime)
+        else:
+            App.quit_app(FileNotFoundError("Loaded level file is of incorrect format."))
 
     def __init__(self, level: Level_FILE) -> None:
         """
