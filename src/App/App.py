@@ -37,8 +37,7 @@ from Conf import Conf
 
 class App:
     """
-    Isolates the game instance
-    Functionally a container for controlling methods
+    Container for game methods and variables
     """
 
     LEVELS: dict[str, Level]
@@ -49,6 +48,11 @@ class App:
 
     @staticmethod
     def init_game(log) -> None:
+        """
+        init_game should be called first before calling run to set app variables
+        """
+
+        pg.init()
         App.LEVELS = parser.level_load()
         App.LOGFILE = Path(Lib.PROJECT_ROOT, "STO", "LOG", "log")
         App.CLOCK = time.Clock()
@@ -63,6 +67,7 @@ class App:
         """
         Isolation from initialisation of values
         """
+
         GAME = True
         while GAME:
             App.CLOCK.tick_busy_loop(60)
