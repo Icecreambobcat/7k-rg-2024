@@ -1,9 +1,10 @@
+from pathlib import Path
+import sys
 from App.App import App
 from App.Conf import Conf
 
 from argparse import ArgumentParser
 import os
-import shutil
 from App.lib import Lib
 
 
@@ -37,25 +38,24 @@ def main() -> None:
 
     if args.log:
         log = True
+        dir = Path(Lib.PROJECT_ROOT, "STO", "LOG", "log")
+        if not dir.is_file():
+            dir.touch()
+        else:
+            os.remove(dir)
+            dir.touch()
 
     elif args.clean:
-        root = Lib.PROJECT_ROOT
-        log_path = os.path.join(root, "STO/log")
+        log_path = Path(Lib.PROJECT_ROOT, "STO", "LOG", "log")
 
-        if os.path.exists(log_path):
-            for item in os.listdir(log_path):
-                item_path = os.path.join(log_path, item)
+        if log_path.is_file():
+            os.remove(log_path)
 
-                if os.path.isfile(item_path):
-                    os.remove(item_path)
-                elif os.path.isdir(item_path):
-                    shutil.rmtree(item_path)
-
-            print(f"All contents of {log_path} have been deleted.")
+            print(f"All contents of {log_path.absolute()} have been deleted.")
         else:
-            print(f"Log directory {log_path} does not exist.")
+            print(f"Log directory {log_path.absolute()} does not exist.")
 
-        exit()
+        sys.exit(0)
 
     Instance = App(log)
     Instance.run()
