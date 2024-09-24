@@ -123,16 +123,20 @@ class Note(Object):
         """
         pass
 
+    _white_tex = None
+    _blue_tex = None
+
     @property
     def image(self) -> Surface:
-        white = image.load(Conf.NOTE_TEX_WHITE)
-        blue = image.load(Conf.NOTE_TEX_BLUE)
-        white = transform.scale(white, (200, 100))
-        blue = transform.scale(blue, (200, 100))
-        if self.lane in [0, 2, 4, 6]:
-            return white
-        else:
-            return blue
+        if Note._white_tex is None:
+            Note._white_tex = image.load(Conf.NOTE_TEX_WHITE)
+            Note._white_tex = transform.scale(Note._white_tex, (200, 100))
+
+        if Note._blue_tex is None:
+            Note._blue_tex = image.load(Conf.NOTE_TEX_BLUE)
+            Note._blue_tex = transform.scale(Note._blue_tex, (200, 100))
+
+        return Note._white_tex if self.lane in [0, 2, 4, 6] else Note._blue_tex
 
     def calc_pos(self) -> int:
         out = (self.time - Game.PASSED_TIME) * Conf.MULTIPLIER + Conf.CONSTANT
@@ -145,7 +149,7 @@ class TapNote(Note):
     """
 
     def __init__(self, lane: int, note_time: int) -> None:
-        sprite.Sprite.__init__(self)
+        super().__init__()
 
         self._lane = lane
         self._time = note_time
@@ -189,7 +193,7 @@ class LongNote(Note):
     """
 
     def __init__(self, lane: int, note_time: int, note_endtime: int) -> None:
-        sprite.Sprite.__init__(self)
+        super().__init__()
 
         self._lane = lane
         self._time = note_time
@@ -201,7 +205,7 @@ class LongNote(Note):
 
     @property
     def time(self) -> int:
-        return self.time
+        return self._time
 
     @time.setter
     def time(self, value: int) -> None:
@@ -240,6 +244,7 @@ class LongNote(Note):
         tex = image.load(Conf.NOTE_TEX_BODY)
         tex = transform.scale(tex, ((self.endtime - self.time) / 50, 100))
         return tex
+
     @property
     def rect_body(self) -> Rect:
         return self.image_body.get_rect()

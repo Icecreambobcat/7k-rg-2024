@@ -46,7 +46,7 @@ class Player(Object):
     """
 
     def __init__(self) -> None:
-        sprite.Sprite.__init__(self)
+        super().__init__()
 
         self.x = 0
         self.y = 0
@@ -74,7 +74,7 @@ class LevelObj(Object):
     """
 
     def __init__(self, x, y, level) -> None:
-        sprite.Sprite.__init__(self)
+        super().__init__()
 
         self.x = x
         self.y = y
