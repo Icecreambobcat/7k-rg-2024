@@ -26,6 +26,10 @@ class Conf:
     }
     SCREEN_SIZE: tuple = (1920, 1080)
 
+    NOTE_TEX_BLUE = Path(Lib.PROJECT_ROOT, "Assets", "Images", "blue_note_tex.jpg")
+    NOTE_TEX_WHITE = Path(Lib.PROJECT_ROOT, "Assets", "Images", "white_note_tex.jpg")
+    # change file formats as necessary
+
     """
     These two handle scroll velocity
     """
