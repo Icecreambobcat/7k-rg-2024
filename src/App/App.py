@@ -4,9 +4,6 @@ from typing import (
     Any,
 )
 
-# from collections.abc import Iterable
-# Add more as needed
-
 from abc import ABC, abstractmethod  # Required for abstract classes
 
 import os
@@ -27,6 +24,7 @@ from pygame import (
     sprite,
 )
 
+from App import parser
 from App.lib import Lib
 from States.Menu import Menu
 from States.Game import Game
@@ -42,6 +40,8 @@ class App:
     Should only be instantiated once
     """
 
+    LEVELS = parser.level_load()
+
     def __init__(self, log) -> None:
         pg.init()
         self.Screen = display.set_mode(
@@ -51,14 +51,13 @@ class App:
         self.Clock = time.Clock()
         self.Log = log
 
-        display.set_caption("GAME TITLE")
+        display.set_caption("7/4k rg 0.1.0")
 
     def run(self) -> None:
         GAME = True
         while GAME:
-            self.Clock.tick_busy_loop(90)
+            self.Clock.tick_busy_loop(60)
             break
-        pass
 
 
 class AudioWrapper:
@@ -117,23 +116,27 @@ class AudioWrapper:
 
     @staticmethod
     def play(sound: mixer.Sound, channel: mixer.Channel) -> None:
-        pass
+        mixer.Channel.play(channel, sound)
 
     @staticmethod
-    def pause(sound: mixer.Sound, channel: mixer.Channel) -> None:
-        pass
+    def pause(channel: mixer.Channel) -> None:
+        mixer.Channel.pause(channel)
 
     @staticmethod
-    def stop(sound: mixer.Sound, channel: mixer.Channel) -> None:
-        pass
+    def unpause(channel: mixer.Channel) -> None:
+        mixer.Channel.unpause(channel)
 
     @staticmethod
-    def fadeout(sound: mixer.Sound, channel: mixer.Channel) -> None:
-        pass
+    def stop(channel: mixer.Channel) -> None:
+        mixer.Channel.stop(channel)
 
     @staticmethod
-    def set_volume(sound: mixer.Sound, channel: mixer.Channel, volume: int) -> None:
-        pass
+    def fadeout(fadeout_time: int, channel: mixer.Channel) -> None:
+        mixer.Channel.fadeout(channel, fadeout_time)
+
+    @staticmethod
+    def set_volume(channel: mixer.Channel, volume: int) -> None:
+        mixer.Channel.set_volume(channel, volume)
 
 
 class Object(ABC, sprite.Sprite):  # Base class for all onscreen objects
