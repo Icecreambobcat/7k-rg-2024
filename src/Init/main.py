@@ -58,8 +58,8 @@ def main() -> None:
 
         sys.exit(0)
 
-    Instance = App(log)
-    Instance.run()
+    App.init_game(log)
+    App.run()
 
 
 if __name__ == "__main__":

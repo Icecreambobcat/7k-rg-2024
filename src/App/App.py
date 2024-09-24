@@ -28,7 +28,7 @@ from pygame import (
 from App import parser
 from App.lib import Lib
 from States.Menu import Menu
-from States.Game import Game
+from States.Game import Game, Level
 from States.LevelSelect import LevelSelect
 from States.Results import Results
 
@@ -38,8 +38,37 @@ from Conf import Conf
 class App:
     """
     Isolates the game instance
-    Should only be instantiated once
+    Functionally a container for controlling methods
     """
+
+    LEVELS: dict[str, Level]
+    LOGFILE: Path
+    CLOCK: time.Clock
+    LOG: bool
+    SCREEN: Surface
+
+    @staticmethod
+    def init_game(log) -> None:
+        App.LEVELS = parser.level_load()
+        App.LOGFILE = Path(Lib.PROJECT_ROOT, "STO", "LOG", "log")
+        App.CLOCK = time.Clock()
+        App.LOG = log
+        App.SCREEN = display.set_mode(
+            size=(Conf.SCREEN_SIZE[0], Conf.SCREEN_SIZE[1]), flags=pg.FULLSCREEN
+        )
+        display.set_caption("7/4k rg 0.1.0")
+
+    @staticmethod
+    def run() -> None:
+        """
+        Isolation from initialisation of values
+        """
+        GAME = True
+        while GAME:
+            App.CLOCK.tick_busy_loop(60)
+            break
+
+        sys.exit(0)
 
     @staticmethod
     def quit_app() -> None:
@@ -48,30 +77,6 @@ class App:
         """
         sys.exit(0)
 
-    LEVELS = parser.level_load()
-    LOGFILE = Path(Lib.PROJECT_ROOT, "STO", "LOG", "log")
-
-    def __init__(self, log) -> None:
-        pg.init()
-        self.Screen = display.set_mode(
-            size=(Conf.SCREEN_SIZE[0], Conf.SCREEN_SIZE[1]), flags=pg.FULLSCREEN
-        )
-        self.Audio = AudioWrapper
-        self.Clock = time.Clock()
-        self.LOG = log
-
-        display.set_caption("7/4k rg 0.1.0")
-
-    def run(self) -> None:
-        """
-        Isolated instance initiation
-        """
-        GAME = True
-        while GAME:
-            self.Clock.tick_busy_loop(60)
-            break
-        
-        sys.exit(0)
 
 class AudioWrapper:
     """
