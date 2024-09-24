@@ -35,6 +35,7 @@ def main() -> None:
     )
 
     args = parser.parse_args()
+    log = False
 
     if args.log:
         log = True

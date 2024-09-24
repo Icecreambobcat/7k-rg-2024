@@ -49,7 +49,6 @@ class App:
         sys.exit(0)
 
     LEVELS = parser.level_load()
-    LOG: bool
     LOGFILE = Path(Lib.PROJECT_ROOT, "STO", "LOG", "log")
 
     def __init__(self, log) -> None:
@@ -59,11 +58,14 @@ class App:
         )
         self.Audio = AudioWrapper
         self.Clock = time.Clock()
-        App.LOG = log
+        self.LOG = log
 
         display.set_caption("7/4k rg 0.1.0")
 
     def run(self) -> None:
+        """
+        Isolated instance initiation
+        """
         GAME = True
         while GAME:
             self.Clock.tick_busy_loop(60)
