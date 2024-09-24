@@ -55,6 +55,14 @@ class Player(Object):
     def position(self) -> tuple[int, int]:
         return (self.x, self.y)
 
+    @property
+    def image(self):
+        return self._image
+
+    @image.setter
+    def image(self, value):
+        self._image = value
+
 
 class LevelObj(Object):
     """
@@ -79,3 +87,11 @@ class LevelObj(Object):
     @property
     def position(self) -> tuple[int, int]:
         return (self.x, self.y)
+
+    @property
+    def image(self):
+        return self._image
+
+    @image.setter
+    def image(self, value):
+        self._image = value
