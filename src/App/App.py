@@ -29,7 +29,7 @@ from pygame import (
 from App import parser
 from App.lib import Lib
 from States.Menu import Menu
-from States.Game import Game, Level
+from States.Game import Game, Level_FILE
 from States.LevelSelect import LevelSelect
 from States.Results import Results
 
@@ -41,10 +41,10 @@ class App:
     Container for game methods and variables
     """
 
-    LEVELS: dict[str, Level]
+    LEVELS: dict[str, Level_FILE]
     LOGFILE: Path
     CLOCK: time.Clock
-    DELTA_TIME: Callable[..., int]
+    DELTA_TIME: Callable[[], int]
     # it's really stupid to have one callable among other constants but oh well
     # it's the cleanest way that remains type safe
     LOG: bool
@@ -81,11 +81,16 @@ class App:
         sys.exit(0)
 
     @staticmethod
-    def quit_app() -> None:
+    def quit_app(*args) -> None:
         """
         Calls cleanup and save functions before quitting
+        if errors are passed then exit with the first error passed
         """
-        sys.exit(0)
+
+        if len(args) == 0:
+            sys.exit(0)
+        else:
+            sys.exit(args[0])
 
 
 class AudioWrapper:
