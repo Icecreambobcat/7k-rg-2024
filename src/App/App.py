@@ -1,5 +1,6 @@
 from __future__ import annotations  # Required for forward references
 from pathlib import Path
+import sys
 from typing import (
     Any,
 )
@@ -40,7 +41,16 @@ class App:
     Should only be instantiated once
     """
 
+    @staticmethod
+    def quit_app() -> None:
+        """
+        Calls cleanup and save functions before quitting
+        """
+        sys.exit(0)
+
     LEVELS = parser.level_load()
+    LOG: bool
+    LOGFILE = Path(Lib.PROJECT_ROOT, "STO", "LOG", "log")
 
     def __init__(self, log) -> None:
         pg.init()
@@ -49,7 +59,7 @@ class App:
         )
         self.Audio = AudioWrapper
         self.Clock = time.Clock()
-        self.Log = log
+        App.LOG = log
 
         display.set_caption("7/4k rg 0.1.0")
 
@@ -58,7 +68,8 @@ class App:
         while GAME:
             self.Clock.tick_busy_loop(60)
             break
-
+        
+        sys.exit(0)
 
 class AudioWrapper:
     """

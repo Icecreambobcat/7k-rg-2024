@@ -2,6 +2,7 @@ from __future__ import annotations
 from pathlib import Path
 from pickle import dump, load
 from lib import Lib
+import pygame as pg
 
 
 class Conf:
@@ -14,9 +15,15 @@ class Conf:
     These may be overridden in future when saves are implemented
     """
     VERSION = "0.1.0 Dev"
-    WINDOW = {"PLACEHOLDER": "PLACEHOLDER"}
-    KEYS = {"PLACEHOLDER": "PLACEHOLDER"}
-    DEFAULTS = {"PLACEHOLDER": "PLACEHOLDER"}
+    KEYS = {
+        "lane0": "s",
+        "lane1": "d",
+        "lane2": "f",
+        "lane3": " ",
+        "lane4": "j",
+        "lane5": "k",
+        "lane6": "l",
+    }
     SCREEN_SIZE: tuple = (1920, 1080)
 
     """
