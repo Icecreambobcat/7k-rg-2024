@@ -57,8 +57,8 @@ def main() -> None:
 
         exit()
 
-    Game = App(log)
-    Game.run()
+    Instance = App(log)
+    Instance.run()
 
 
 if __name__ == "__main__":

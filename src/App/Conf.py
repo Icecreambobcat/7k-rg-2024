@@ -3,8 +3,6 @@ from pathlib import Path
 from pickle import dump, load
 from lib import Lib
 
-# from pyautogui import size
-
 
 class Conf:
     """
