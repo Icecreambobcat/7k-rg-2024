@@ -28,30 +28,52 @@ class Game:
     """
     Container for ingame behaviour
     """
-    STARTTIME: int = 0
+
+    START_TIME: int
+    PASSED_TIME: int
+
+    LOADED = sprite.Group()
+    # All note sprites are first loaded into this group
+    ACTIVE = sprite.Group()
+    # Notes that shold be visible are then moved into this group
+    PASSED = sprite.Group()
+    # Notes should be moved here once hit and should then stop being updated and rendered
 
     @staticmethod
-    def ingame_loop(level: Level, auto: bool) -> bool:
+    def ingame_loop(level: Level_FILE, auto: bool) -> bool:
         """
         Instantiantes own clock
         Provides multiple return states:
         False - pass
         True - fail OR quit: skip results screen and play fail graphic if fail
         """
+
+        def failscreen() -> None:
+            """
+            Should be called upon fail to display the fail graphic
+            """
+            pass
+
         CLOCK = App.CLOCK
         AUDIO = Game.get_audio(level)
 
-        STARTTIME = App.DELTA_TIME # call this as late as possible to minimise delay
+        Game.START_TIME = App.DELTA_TIME()  # call right before loop for accuracy
+        Game.PASSED_TIME = Game.START_TIME
 
         INGAME = True
         while INGAME:
+            Game.PASSED_TIME = App.DELTA_TIME() - Game.START_TIME
             break
         else:
             return False
         return True
 
     @staticmethod
-    def get_audio(level: Level) -> mixer.Sound:
+    def load_level(level: Level_FILE) -> Level_MEMORY:
+        return Level_MEMORY(level)
+
+    @staticmethod
+    def get_audio(level: Level_FILE) -> mixer.Sound:
         """
         For fetching the level audio for a level
         """
@@ -81,22 +103,36 @@ class Note(Object):
     TODO: Optimise runtime overhead of loading stuff
     """
 
-    LOADED = sprite.Group()
-    ACTIVE = sprite.Group()
-    PASSED = sprite.Group()
-
     @property
     @abstractmethod
     def time(self) -> int:
         pass
 
-    def calc_pos(self) -> int:
+    @property
+    @abstractmethod
+    def lane(self) -> int:
+        pass
+        
+    @property
+    @abstractmethod
+    def state(self) -> str:
         """
-        note absolute time - current delta time * multiplier + constant
+        For tapnotes: active and hit/missed
+        For LNs: active, held, hit and missed
+        """
+        pass
 
-        TODO: Implement
-        """
-        out = (self.time - Game.STARTTIME) * Conf.MULTIPLIER + Conf.CONSTANT
+    @property
+    def image(self) -> Surface:
+        white = image.load(Conf.NOTE_TEX_WHITE)
+        blue = image.load(Conf.NOTE_TEX_BLUE)
+        if self.lane in [0, 2, 4, 6]:
+            return white
+        else:
+            return blue
+
+    def calc_pos(self) -> int:
+        out = (self.time - Game.PASSED_TIME) * Conf.MULTIPLIER + Conf.CONSTANT
         return out
 
 
@@ -108,16 +144,12 @@ class TapNote(Note):
     def __init__(self, lane: int, note_time: int) -> None:
         sprite.Sprite.__init__(self)
 
-        self.lane = lane
+        self._lane = lane
         self._time = note_time
 
     @property
     def position(self) -> tuple[int, int]:
         return (Note.calc_pos(self), 0)  # PLACEHOLDER - CHANGE ASAP
-
-    @property
-    def image(self) -> Surface:
-        return self.image
 
     @property
     def time(self) -> int:
@@ -127,6 +159,25 @@ class TapNote(Note):
     def time(self, val: int) -> None:
         self._time = val
 
+    @property
+    def lane(self) -> int:
+        return self._lane
+
+    @lane.setter
+    def lane(self, value) -> None:
+        self._lane = value
+
+    @property
+    def rect(self) -> Rect:
+        return self.image.get_rect()
+
+    @property
+    def state(self) -> str:
+        return self._state
+
+    @state.setter
+    def state(self, value) -> None:
+        self._state = value
 
 class LongNote(Note):
     """
@@ -136,17 +187,13 @@ class LongNote(Note):
     def __init__(self, lane: int, note_time: int, note_endtime: int) -> None:
         sprite.Sprite.__init__(self)
 
-        self.lane = lane
+        self._lane = lane
         self._time = note_time
         self._endtime = note_endtime
 
     @property
     def position(self) -> tuple[int, int]:
         return (0, 0)  # PLACEHOLDER - CHANGE ASAP
-
-    @property
-    def image(self) -> Surface:
-        return self.image
 
     @property
     def time(self) -> int:
@@ -161,11 +208,84 @@ class LongNote(Note):
         return self._endtime
 
     @endtime.setter
-    def _endtime(self, value: int) -> None:
+    def endtime(self, value: int) -> None:
         self._endtime = value
 
+    @property
+    def lane(self) -> int:
+        return self._lane
 
-class Level:
+    @lane.setter
+    def lane(self, value) -> None:
+        self._lane = value
+
+    @property
+    def rect(self) -> Rect:
+        return self.image.get_rect()
+
+    @property
+    def state(self) -> str:
+        return self._state
+
+    @state.setter
+    def state(self, value) -> None:
+        self._state = value
+
+    @property
+    def image_body(self) -> Surface:
+        return self._image_body
+
+    @image_body.setter
+    def image_body(self, value) -> None:
+        self._image_body = value
+
+    @property
+    def image_tail(self) -> Surface:
+        return self._image_tail
+
+    @image_tail.setter
+    def image_tail(self, value) -> None:
+        self._image_tail = value
+
+
+class Level_MEMORY:
+    """
+    The actual object passed to the level engine at runtime
+    Ensures reasonable overheads and isolates level data from loaded sprites which are more expensive
+    """
+
+    @staticmethod
+    def load_notes(line: list[str]) -> Note | None:
+        obj_type = None
+        time = int(line[2])
+        endtime = time
+        lane = int(line[0])
+
+        if int(line[3]) == 0:
+            obj_type = TapNote
+        elif int(line[3]) == 7:
+            obj_type = LongNote
+            endtime = int(line[5])
+        else:
+            App.quit_app(FileNotFoundError("Loaded level file is of incorrect format."))
+
+        if obj_type == TapNote:
+            return TapNote(lane, time)
+        elif obj_type == LongNote:
+            return LongNote(lane, time, endtime)
+
+    def __init__(self, level: Level_FILE) -> None:
+        """
+        reads level data and removes invalid notes
+        """
+
+        note_list = [Level_MEMORY.load_notes(line) for line in level.notes]
+        self.notes: list[Note] = [note for note in note_list if note is not None]
+        self.meta = level.meta
+        self.info = level.info
+
+
+class Level_FILE:
     @staticmethod
     def parse_meta(path: Path) -> dict[str, Any]:
         """
@@ -173,6 +293,7 @@ class Level:
 
         Reads the .osu file and returns a dictionary containing the level data in several nested dictionaries and lists
         """
+
         General: dict[str, str] = dict()
         Metadata: dict[str, str | list[str]] = dict()
         Difficulty: dict[str, str] = dict()
@@ -259,7 +380,7 @@ class Level:
         return out
 
     def __init__(self, path: Path) -> None:
-        self.data = Level.parse_meta(path)
+        self.data = Level_FILE.parse_meta(path)
         self.notes: list[list[str]] = self.data["H"]
         self.tpoints: list[list[str]] = self.data["T"]
         self.meta: dict[str, str | list[str]] = self.data["M"]
