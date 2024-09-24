@@ -4,6 +4,7 @@ from pathlib import Path
 import sys
 from typing import (
     Any,
+    Never,
 )
 
 from abc import ABC, abstractmethod  # Required for abstract classes
@@ -81,7 +82,7 @@ class App:
         sys.exit(0)
 
     @staticmethod
-    def quit_app(*args) -> None:
+    def quit_app(*args) -> Never:
         """
         Calls cleanup and save functions before quitting
         if errors are passed then exit with the first error passed
