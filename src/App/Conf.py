@@ -28,6 +28,8 @@ class Conf:
 
     NOTE_TEX_BLUE = Path(Lib.PROJECT_ROOT, "Assets", "Images", "blue_note_tex.jpg")
     NOTE_TEX_WHITE = Path(Lib.PROJECT_ROOT, "Assets", "Images", "white_note_tex.jpg")
+    NOTE_TEX_BODY = Path(Lib.PROJECT_ROOT, "Assets", "Images", "note_body_tex.jpg")
+    NOTE_TEX_TAIL = Path(Lib.PROJECT_ROOT, "Assets", "Images", "note_tail_tex.jpg")
     # change file formats as necessary
 
     """

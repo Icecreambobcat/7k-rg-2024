@@ -16,6 +16,7 @@ from pygame import (
     mouse,
     Surface,
     sprite,
+    transform,
 )
 from typing import (
     Any,
@@ -112,7 +113,7 @@ class Note(Object):
     @abstractmethod
     def lane(self) -> int:
         pass
-        
+
     @property
     @abstractmethod
     def state(self) -> str:
@@ -126,6 +127,8 @@ class Note(Object):
     def image(self) -> Surface:
         white = image.load(Conf.NOTE_TEX_WHITE)
         blue = image.load(Conf.NOTE_TEX_BLUE)
+        white = transform.scale(white, (200, 100))
+        blue = transform.scale(blue, (200, 100))
         if self.lane in [0, 2, 4, 6]:
             return white
         else:
@@ -178,6 +181,7 @@ class TapNote(Note):
     @state.setter
     def state(self, value) -> None:
         self._state = value
+
 
 class LongNote(Note):
     """
@@ -233,19 +237,18 @@ class LongNote(Note):
 
     @property
     def image_body(self) -> Surface:
-        return self._image_body
-
-    @image_body.setter
-    def image_body(self, value) -> None:
-        self._image_body = value
+        tex = image.load(Conf.NOTE_TEX_BODY)
+        tex = transform.scale(tex, ((self.endtime - self.time) / 50, 100))
+        return tex
+    @property
+    def rect_body(self) -> Rect:
+        return self.image_body.get_rect()
 
     @property
     def image_tail(self) -> Surface:
-        return self._image_tail
-
-    @image_tail.setter
-    def image_tail(self, value) -> None:
-        self._image_tail = value
+        tex = image.load(Conf.NOTE_TEX_TAIL)
+        tex = transform.scale(tex, (200, 100))
+        return tex
 
 
 class Level_MEMORY:
