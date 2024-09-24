@@ -28,6 +28,7 @@ class Results:
     @staticmethod
     def results_loop() -> bool:
         RESULTS = True
+        CLOCK = time.Clock()
         while RESULTS:
             break
         else: return False

@@ -28,6 +28,7 @@ class Menu:
     @staticmethod
     def menu_loop() -> bool:
         MENU = True
+        CLOCK = time.Clock()
         while MENU:
             break
         else: return False

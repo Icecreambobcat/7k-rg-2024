@@ -30,6 +30,8 @@ class LevelSelect:
     @staticmethod
     def level_select_loop() -> bool:
         SELECT = True
+        CLOCK = time.Clock()
+
         while SELECT:
             break
         else: return False
