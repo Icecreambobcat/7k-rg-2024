@@ -26,7 +26,9 @@ class Results:
     """
 
     @staticmethod
-    def results_loop() -> None:
-        pass
-
-    pass
+    def results_loop() -> bool:
+        RESULTS = True
+        while RESULTS:
+            break
+        else: return False
+        return True

@@ -26,7 +26,9 @@ class Menu:
     """
 
     @staticmethod
-    def menu_loop() -> None:
-        pass
-
-    pass
+    def menu_loop() -> bool:
+        MENU = True
+        while MENU:
+            break
+        else: return False
+        return True

@@ -28,8 +28,12 @@ class LevelSelect:
     """
 
     @staticmethod
-    def level_select_loop() -> None:
-        pass
+    def level_select_loop() -> bool:
+        SELECT = True
+        while SELECT:
+            break
+        else: return False
+        return True
 
 
 class Player(Object):
@@ -39,10 +43,8 @@ class Player(Object):
     """
 
     def __init__(self) -> None:
-        # pygame calls
         sprite.Sprite.__init__(self)
 
-        # locally defined
         self.x = 0
         self.y = 0
 
@@ -61,6 +63,8 @@ class LevelObj(Object):
     """
 
     def __init__(self, x, y, level) -> None:
+        sprite.Sprite.__init__(self)
+
         self.x = x
         self.y = y
         self.level = level
