@@ -1,4 +1,5 @@
 from __future__ import annotations
+from abc import abstractmethod
 from pathlib import Path
 from App.App import Object, App
 from App.Conf import Conf
@@ -24,6 +25,11 @@ from App.lib import Lib
 
 
 class Game:
+    """
+    Container for ingame behaviour
+    """
+    STARTTIME: int = 0
+
     @staticmethod
     def ingame_loop(level: Level, auto: bool) -> bool:
         """
@@ -32,13 +38,16 @@ class Game:
         False - pass
         True - fail OR quit: skip results screen and play fail graphic if fail
         """
-        SONG_CLOCK = time.Clock()
+        CLOCK = App.CLOCK
         AUDIO = Game.get_audio(level)
+
+        STARTTIME = App.DELTA_TIME # call this as late as possible to minimise delay
 
         INGAME = True
         while INGAME:
             break
-        else: return False 
+        else:
+            return False
         return True
 
     @staticmethod
@@ -72,14 +81,23 @@ class Note(Object):
     TODO: Optimise runtime overhead of loading stuff
     """
 
+    LOADED = sprite.Group()
+    ACTIVE = sprite.Group()
+    PASSED = sprite.Group()
+
+    @property
+    @abstractmethod
+    def time(self) -> int:
+        pass
+
     def calc_pos(self) -> int:
         """
         note absolute time - current delta time * multiplier + constant
 
         TODO: Implement
         """
-        # out = (self.time - App.DELTA_TIME) * Conf.MULTIPLIER + Conf.CONSTANT
-        return 0
+        out = (self.time - Game.STARTTIME) * Conf.MULTIPLIER + Conf.CONSTANT
+        return out
 
 
 class TapNote(Note):
@@ -87,11 +105,11 @@ class TapNote(Note):
     tapnote logic
     """
 
-    def __init__(self, lane, note_time) -> None:
+    def __init__(self, lane: int, note_time: int) -> None:
         sprite.Sprite.__init__(self)
 
         self.lane = lane
-        self.time = note_time
+        self._time = note_time
 
     @property
     def position(self) -> tuple[int, int]:
@@ -101,18 +119,26 @@ class TapNote(Note):
     def image(self) -> Surface:
         return self.image
 
+    @property
+    def time(self) -> int:
+        return self._time
+
+    @time.setter
+    def time(self, val: int) -> None:
+        self._time = val
+
 
 class LongNote(Note):
     """
     LN logic
     """
 
-    def __init__(self, lane, note_time, note_endtime) -> None:
+    def __init__(self, lane: int, note_time: int, note_endtime: int) -> None:
         sprite.Sprite.__init__(self)
 
         self.lane = lane
-        self.time = note_time
-        self.endtime = note_endtime
+        self._time = note_time
+        self._endtime = note_endtime
 
     @property
     def position(self) -> tuple[int, int]:
@@ -121,6 +147,22 @@ class LongNote(Note):
     @property
     def image(self) -> Surface:
         return self.image
+
+    @property
+    def time(self) -> int:
+        return self.time
+
+    @time.setter
+    def time(self, value: int) -> None:
+        self._time = value
+
+    @property
+    def endtime(self) -> int:
+        return self._endtime
+
+    @endtime.setter
+    def _endtime(self, value: int) -> None:
+        self._endtime = value
 
 
 class Level:
