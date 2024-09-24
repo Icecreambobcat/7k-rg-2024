@@ -5,9 +5,12 @@ from lib import Lib
 from pathlib import Path
 
 
-def level_load(file: Path) -> dict[str, Level]:
+def level_load() -> dict[str, Level]:
     out = dict()
     dir = Path(f"{Lib.PROJECT_ROOT}/Assets/Levels")
     for file in dir.iterdir():
-        out[file.name] = Level(file)
+        for diff in file.iterdir():
+            if diff.name.endswith(".osu"):
+                level = Level(diff)
+                out[f"{level.meta["TitleUnicode"]} | {level.meta["Version"]}"] = level
     return out
