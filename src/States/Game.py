@@ -20,16 +20,26 @@ from typing import (
     Any,
 )
 
+from App.lib import Lib
+
 
 class Game:
     @staticmethod
-    def ingame_loop(level: Level, auto: bool) -> None:
+    def ingame_loop(level: Level, auto: bool) -> bool:
+        """
+        Instantiantes own clock
+        Provides multiple return states:
+        False - pass
+        True - fail OR quit: skip results screen and play fail graphic if fail
+        """
         SONG_CLOCK = time.Clock()
         AUDIO = Game.get_audio(level)
 
         INGAME = True
         while INGAME:
             break
+        else: return False 
+        return True
 
     @staticmethod
     def get_audio(level: Level) -> mixer.Sound:
@@ -37,8 +47,22 @@ class Game:
         For fetching the level audio for a level
         """
 
-        PLACEHOLDER = mixer.Sound("PLACEHOLDER")
-        return PLACEHOLDER
+        info = level.info
+        if "AudioFilename" in info:
+            AUDIO = mixer.Sound(
+                Path(
+                    Lib.PROJECT_ROOT,
+                    "Assets",
+                    "Levels",
+                    str(level.meta["TitleUnicode"]),
+                    level.info["AudioFilename"],
+                )
+            )
+            return AUDIO
+        else:
+            raise FileNotFoundError(
+                "Audio file not found in level metadata:", level.meta["TitleUnicode"]
+            )
 
 
 class Note(Object):
