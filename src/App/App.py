@@ -1,4 +1,5 @@
 from __future__ import annotations  # Required for forward references
+from collections.abc import Callable
 from pathlib import Path
 import sys
 from typing import (
@@ -43,6 +44,9 @@ class App:
     LEVELS: dict[str, Level]
     LOGFILE: Path
     CLOCK: time.Clock
+    DELTA_TIME: Callable[..., int]
+    # it's really stupid to have one callable among other constants but oh well
+    # it's the cleanest way that remains type safe
     LOG: bool
     SCREEN: Surface
 
@@ -56,6 +60,7 @@ class App:
         App.LEVELS = parser.level_load()
         App.LOGFILE = Path(Lib.PROJECT_ROOT, "STO", "LOG", "log")
         App.CLOCK = time.Clock()
+        App.DELTA_TIME = time.get_ticks
         App.LOG = log
         App.SCREEN = display.set_mode(
             size=(Conf.SCREEN_SIZE[0], Conf.SCREEN_SIZE[1]), flags=pg.FULLSCREEN
@@ -70,7 +75,7 @@ class App:
 
         GAME = True
         while GAME:
-            App.CLOCK.tick_busy_loop(60)
+            App.CLOCK.tick_busy_loop(120)
             break
 
         sys.exit(0)
