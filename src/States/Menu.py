@@ -1,5 +1,5 @@
 from __future__ import annotations
-from App.App import Object
+from App.App import App, Object
 import pygame as pg
 from pygame import (
     Rect,
@@ -28,8 +28,9 @@ class Menu:
     @staticmethod
     def menu_loop() -> bool:
         MENU = True
-        CLOCK = time.Clock()
+        CLOCK = App.CLOCK
         while MENU:
             break
-        else: return False
+        else:
+            return False
         return True

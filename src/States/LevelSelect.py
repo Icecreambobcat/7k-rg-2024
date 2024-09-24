@@ -1,5 +1,5 @@
 from __future__ import annotations
-from App.App import Object
+from App.App import App, Object
 import pygame as pg
 from pygame import (
     Rect,
@@ -30,11 +30,12 @@ class LevelSelect:
     @staticmethod
     def level_select_loop() -> bool:
         SELECT = True
-        CLOCK = time.Clock()
+        CLOCK = App.CLOCK
 
         while SELECT:
             break
-        else: return False
+        else:
+            return False
         return True
 
 
