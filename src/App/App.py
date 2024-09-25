@@ -57,6 +57,7 @@ class App:
     """
     CURRENT_LEVEL: Level_FILE
     AUTO: bool
+    IMAGES: dict[str, list[Path | None]]
 
 
     @staticmethod
@@ -77,6 +78,7 @@ class App:
         display.set_caption("7/4k rg 0.1.0")
         App.STATE = "Menu"
         App.AUTO = False
+        App.IMAGES = Lib.load_images()
 
     @staticmethod
     def run() -> Never:
@@ -123,8 +125,10 @@ class App:
         """
 
         if len(args) == 0:
+            pg.quit()
             sys.exit(0)
         else:
+            pg.quit()
             sys.exit(args[0])
 
 

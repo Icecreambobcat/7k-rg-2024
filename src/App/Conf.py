@@ -2,7 +2,6 @@ from __future__ import annotations
 from pathlib import Path
 from pickle import dump, load
 from lib import Lib
-import pygame as pg
 
 
 class Conf:
@@ -31,12 +30,21 @@ class Conf:
     NOTE_TEX_BODY = Path(Lib.PROJECT_ROOT, "Assets", "Images", "note_body_tex.png")
     # NOTE_TEX_TAIL = Path(Lib.PROJECT_ROOT, "Assets", "Images", "note_tail_tex.png")
     # change file formats as necessary
+    # however default textures are shipped with the game
 
     """
     These two handle scroll velocity
     """
     CONSTANT = 0
     MULTIPLIER = 0.5
+
+    HIT_WINDOWS = {
+        "PerfectPlus": 30,
+        "Perfect": 50,
+        "Great": 100,
+        "Good": 150,
+        "Miss": 200,
+    }
 
     """
     Yet to be implemented

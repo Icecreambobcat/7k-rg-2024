@@ -19,6 +19,8 @@ from typing import (
     Any,
 )
 
+from States.Game import Level_FILE
+
 
 class LevelSelect:
     """
@@ -32,6 +34,8 @@ class LevelSelect:
         """
         return true to go back to the main menu
         """
+        selected: str = ''
+
         SELECT = True
         CLOCK = App.CLOCK
 
@@ -39,6 +43,8 @@ class LevelSelect:
             CLOCK.tick_busy_loop(120)
             break
         else:
+            if selected is not '':
+                App.CURRENT_LEVEL = App.LEVELS[selected]
             return False
         return True
 
@@ -83,10 +89,6 @@ class LevelObj(Object):
         self.x = x
         self.y = y
         self.level = level
-
-    @property
-    def gamestates(self) -> list[str]:
-        return ["levelSelect"]
 
     @property
     def position(self) -> tuple[int, int]:
