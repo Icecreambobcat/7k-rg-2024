@@ -50,9 +50,17 @@ class App:
     # it's the cleanest way that remains type safe
     LOG: bool
     SCREEN: Surface
+    STATE: str
+    """
+    This can be one of:
+    Menu, Results, LevelSelect, Game
+    """
+    CURRENT_LEVEL: Level_FILE
+    AUTO: bool
+
 
     @staticmethod
-    def init_game(log) -> None:
+    def init_game(log: bool) -> None:
         """
         init_game should be called first before calling run to set app variables
         """
@@ -67,19 +75,45 @@ class App:
             size=(Conf.SCREEN_SIZE[0], Conf.SCREEN_SIZE[1]), flags=pg.FULLSCREEN
         )
         display.set_caption("7/4k rg 0.1.0")
+        App.STATE = "Menu"
+        App.AUTO = False
 
     @staticmethod
-    def run() -> None:
+    def run() -> Never:
         """
         Isolation from initialisation of values
         """
 
         GAME = True
         while GAME:
+            match App.STATE:
+                case "Menu":
+                    out = Menu.menu_loop()
+                    if out is False:
+                        App.STATE = "LevelSelect"
+                    elif out is True:
+                        GAME = False
+                case "LevelSelect":
+                    out = LevelSelect.level_select_loop()
+                    if out is False:
+                        App.STATE = "Game"
+                    elif out is True:
+                        App.STATE = "Menu"
+                case "Game":
+                    out = Game.ingame_loop(App.CURRENT_LEVEL, App.AUTO)
+                    if out is False:
+                        App.STATE = "Results"
+                    elif out is True:
+                        App.STATE = "LevelSelect"
+                case "Results":
+                    out = Results.results_loop()
+                    if out is False:
+                        App.STATE = "LevelSelect"
+                    elif out is True:
+                        App.STATE = "Game"
             App.CLOCK.tick_busy_loop(120)
-            break
 
-        sys.exit(0)
+        App.quit_app()
 
     @staticmethod
     def quit_app(*args) -> Never:

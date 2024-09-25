@@ -1,5 +1,5 @@
 from __future__ import annotations
-from App.App import App, Object
+from App.App import App, Object, AudioWrapper
 import pygame as pg
 from pygame import (
     Rect,
@@ -29,10 +29,14 @@ class LevelSelect:
 
     @staticmethod
     def level_select_loop() -> bool:
+        """
+        return true to go back to the main menu
+        """
         SELECT = True
         CLOCK = App.CLOCK
 
         while SELECT:
+            CLOCK.tick_busy_loop(120)
             break
         else:
             return False
@@ -46,7 +50,7 @@ class Player(Object):
     """
 
     def __init__(self) -> None:
-        super().__init__()
+        sprite.Sprite.__init__(self)
 
         self.x = 0
         self.y = 0
@@ -74,7 +78,7 @@ class LevelObj(Object):
     """
 
     def __init__(self, x, y, level) -> None:
-        super().__init__()
+        sprite.Sprite.__init__(self)
 
         self.x = x
         self.y = y
