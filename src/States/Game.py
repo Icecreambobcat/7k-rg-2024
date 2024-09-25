@@ -1,10 +1,14 @@
 from __future__ import annotations
 from abc import abstractmethod
 from pathlib import Path
+
 from App.App import Object, App, AudioWrapper
+from App.lib import Lib
 from App.Conf import Conf
 import pygame as pg
 from pygame import (
+    KEYDOWN,
+    KEYUP,
     Rect,
     font,
     mixer,
@@ -20,15 +24,23 @@ from pygame import (
 )
 from typing import (
     Any,
+    Never,
 )
 
-from App.lib import Lib
+import threading
+from queue import Queue
 
 
 class Game:
     """
     Container for ingame behaviour
     """
+
+    miss = event.custom_type()
+    good = event.custom_type()
+    great = event.custom_type()
+    perfect = event.custom_type()
+    plusperfect = event.custom_type()
 
     START_TIME: int
     PASSED_TIME: int
@@ -42,6 +54,8 @@ class Game:
     PASSED = sprite.Group()
     # Notes should be moved here once hit and should then stop being updated and rendered
 
+
+
     @staticmethod
     def ingame_loop(level: Level_FILE, auto: bool) -> bool:
         """
@@ -51,25 +65,102 @@ class Game:
         True - fail OR quit: skip results screen and play fail graphic if fail
         """
 
+        KEY_QUEUE = Queue()
+        def get_key_events():
+            while True:
+                for event in pg.event.get([pg.KEYDOWN, pg.KEYUP]):
+                    timestamp = Game.PASSED_TIME
+                    key_time = {"key": event, "time": timestamp}
+                    KEY_QUEUE.put(key_time)
+                    time.wait(1)
+
+        key_thread = threading.Thread(target=get_key_events, args=(KEY_QUEUE,))
+        key_thread.daemon = True
+        key_thread.start()
+
         def failscreen() -> None:
             """
             Should be called upon fail to display the fail graphic
             """
             pass
 
+        health = 1000
+
         CLOCK = App.CLOCK
 
         SONG = Game.get_audio(level)
         LEVEL_LOADED = Game.load_level(level)
+        for note in LEVEL_LOADED.notes:
+            Game.LOADED.add(note)
 
         Game.START_TIME = App.DELTA_TIME()  # call right before loop for accuracy
         Game.PASSED_TIME = Game.START_TIME
 
+        AudioWrapper.play(SONG, AudioWrapper.song)
         INGAME = True
         while INGAME:
             Game.PASSED_TIME = App.DELTA_TIME() - Game.START_TIME
+            for sp in Game.LOADED:
+                if sp.time <= Game.PASSED_TIME - 2000:
+                    sp.remove(Game.LOADED)
+                    sp.add(Game.ACTIVE)
+
+            if not auto:
+                keysdown_thisframe: dict[str, int] = dict()
+                keysup_thisframe: dict[str, int] = dict()
+                while not KEY_QUEUE.empty():
+                    events = KEY_QUEUE.get()
+                    pressed = events["key"]
+                    timestamp = events["time"]
+
+                    if pressed.type == KEYUP:
+                        if key.name(pressed.key) == 's':
+                            keysdown_thisframe["s"] = timestamp
+                        if key.name(pressed.key) == 'd':
+                            keysdown_thisframe["d"] = timestamp
+                        if key.name(pressed.key) == 'f':
+                            keysdown_thisframe["f"] = timestamp
+                        if key.name(pressed.key) == ' ':
+                            keysdown_thisframe[" "] = timestamp
+                        if key.name(pressed.key) == 'j':
+                            keysdown_thisframe["j"] = timestamp
+                        if key.name(pressed.key) == 'k':
+                            keysdown_thisframe["k"] = timestamp
+                        if key.name(pressed.key) == 'l':
+                            keysdown_thisframe["l"] = timestamp
+                    if pressed.type == KEYDOWN:
+                        if key.name(pressed.key) == 's':
+                            keysup_thisframe["s"] = timestamp
+                        if key.name(pressed.key) == 'd':
+                            keysup_thisframe["d"] = timestamp
+                        if key.name(pressed.key) == 'f':
+                            keysup_thisframe["f"] = timestamp
+                        if key.name(pressed.key) == ' ':
+                            keysup_thisframe[" "] = timestamp
+                        if key.name(pressed.key) == 'j':
+                            keysup_thisframe["j"] = timestamp
+                        if key.name(pressed.key) == 'k':
+                            keysup_thisframe["k"] = timestamp
+                        if key.name(pressed.key) == 'l':
+                            keysup_thisframe["l"] = timestamp
+
+                for note in Game.ACTIVE:
+                    if note.time <= Game.PASSED_TIME - 150:
+                        note.remove(Game.ACTIVE)
+                        note.add(Game.PASSED)
+                        event.post(event.Event(Game.miss))
+
+            else:
+                for note in Game.ACTIVE:
+                    if note.time <= Game.PASSED_TIME - 10:
+                        note.remove(Game.ACTIVE)
+                        note.add(Game.PASSED)
+                        event.post(event.Event(Game.plusperfect))
+
+            Game.ACTIVE.update()
             CLOCK.tick_busy_loop(120)
-            break
+            if health <= 0:
+                break
         else:
             return False
         return True
@@ -85,7 +176,7 @@ class Game:
         """
 
         info = level.info
-        if "AudioFilename" in info:
+        if "AudioFilename" in info.keys():
             SONG = mixer.Sound(
                 Path(
                     Lib.PROJECT_ROOT,
@@ -158,9 +249,11 @@ class TapNote(Note):
 
     def __init__(self, lane: int, note_time: int) -> None:
         sprite.Sprite.__init__(self)
-
         self._lane = lane
         self._time = note_time
+
+    def update(self) -> None:
+        App.SCREEN.blit(self.image, self.position)
 
     @property
     def position(self) -> tuple[int, int]:
@@ -195,10 +288,13 @@ class LongNote(Note):
 
     def __init__(self, lane: int, note_time: int, note_endtime: int) -> None:
         sprite.Sprite.__init__(self)
-
         self._lane = lane
         self._time = note_time
         self._endtime = note_endtime
+
+    def update(self) -> None:
+        App.SCREEN.blit(self.image, self.position)
+        App.SCREEN.blit(self.image_body, self.position)
 
     @property
     def position(self) -> tuple[int, int]:
@@ -264,6 +360,7 @@ class Level_MEMORY:
 
     @staticmethod
     def load_notes(line: list[str]) -> Note:
+        note: TapNote | LongNote
         obj_type = None
         time = int(line[2])
         endtime = time
@@ -279,6 +376,7 @@ class Level_MEMORY:
             return TapNote(lane, time)
         elif obj_type == LongNote:
             return LongNote(lane, time, endtime)
+
         else:
             App.quit_app(FileNotFoundError("Loaded level file is of incorrect format."))
 
