@@ -149,8 +149,12 @@ class Game:
                                 if note in notes_hit_this_frame:
                                     continue  # Skip notes that were already hit in this frame
 
+                                hit_time = Game.PASSED_TIME - note.time
+                                if hit_time > Conf.HIT_WINDOWS["miss"]:
+                                    continue
+
                                 # Check if the note matches the key and is within the hit window
-                                hit_window = abs(Game.PASSED_TIME - note.time)
+                                hit_window = abs(hit_time)
                                 if (
                                     note.required_key == key
                                     and hit_window <= Conf.HIT_WINDOWS["miss"]
