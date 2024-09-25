@@ -1,7 +1,7 @@
 from __future__ import annotations
 from abc import abstractmethod
 from pathlib import Path
-from App.App import Object, App
+from App.App import Object, App, AudioWrapper
 from App.Conf import Conf
 import pygame as pg
 from pygame import (
@@ -58,7 +58,9 @@ class Game:
             pass
 
         CLOCK = App.CLOCK
-        AUDIO = Game.get_audio(level)
+
+        SONG = Game.get_audio(level)
+        LEVEL_LOADED = Game.load_level(level)
 
         Game.START_TIME = App.DELTA_TIME()  # call right before loop for accuracy
         Game.PASSED_TIME = Game.START_TIME
@@ -66,6 +68,7 @@ class Game:
         INGAME = True
         while INGAME:
             Game.PASSED_TIME = App.DELTA_TIME() - Game.START_TIME
+            CLOCK.tick_busy_loop(120)
             break
         else:
             return False
@@ -83,7 +86,7 @@ class Game:
 
         info = level.info
         if "AudioFilename" in info:
-            AUDIO = mixer.Sound(
+            SONG = mixer.Sound(
                 Path(
                     Lib.PROJECT_ROOT,
                     "Assets",
@@ -92,7 +95,7 @@ class Game:
                     level.info["AudioFilename"],
                 )
             )
-            return AUDIO
+            return SONG
         else:
             App.quit_app(
                 FileNotFoundError(
@@ -145,7 +148,7 @@ class Note(Object):
 
     def calc_pos(self) -> int:
         out = (self.time - Game.PASSED_TIME) * Conf.MULTIPLIER + Conf.CONSTANT
-        return out
+        return int(out)
 
 
 class TapNote(Note):
@@ -154,7 +157,7 @@ class TapNote(Note):
     """
 
     def __init__(self, lane: int, note_time: int) -> None:
-        super().__init__()
+        sprite.Sprite.__init__(self)
 
         self._lane = lane
         self._time = note_time
@@ -191,7 +194,7 @@ class LongNote(Note):
     """
 
     def __init__(self, lane: int, note_time: int, note_endtime: int) -> None:
-        super().__init__()
+        sprite.Sprite.__init__(self)
 
         self._lane = lane
         self._time = note_time
@@ -284,8 +287,7 @@ class Level_MEMORY:
         reads level data and removes invalid notes
         """
 
-        note_list = [Level_MEMORY.load_notes(line) for line in level.notes]
-        self.notes: list[Note] = [note for note in note_list if note is not None]
+        self.notes: list[Note] = [Level_MEMORY.load_notes(line) for line in level.notes]
         self.meta = level.meta
         self.info = level.info
 

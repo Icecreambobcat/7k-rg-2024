@@ -1,5 +1,4 @@
 from __future__ import annotations
-from typing import Any
 from States.Game import Level_FILE
 from lib import Lib
 from pathlib import Path
@@ -7,7 +6,7 @@ from pathlib import Path
 
 def level_load() -> dict[str, Level_FILE]:
     out = dict()
-    dir = Path(f"{Lib.PROJECT_ROOT}/Assets/Levels")
+    dir = Path(Lib.PROJECT_ROOT, "Assets", "Levels")
     for file in dir.iterdir():
         for diff in file.iterdir():
             if diff.name.endswith(".osu"):
