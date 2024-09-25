@@ -39,11 +39,11 @@ class Conf:
     MULTIPLIER = 0.5
 
     HIT_WINDOWS = {
-        "PerfectPlus": 30,
-        "Perfect": 50,
-        "Great": 100,
-        "Good": 150,
-        "Miss": 200,
+        "plusperfect": 30,
+        "perfect": 50,
+        "great": 100,
+        "good": 150,
+        "miss": 200,
     }
 
     """
