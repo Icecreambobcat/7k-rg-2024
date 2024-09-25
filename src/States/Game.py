@@ -54,113 +54,191 @@ class Game:
     PASSED = sprite.Group()
     # Notes should be moved here once hit and should then stop being updated and rendered
 
-
-
     @staticmethod
     def ingame_loop(level: Level_FILE, auto: bool) -> bool:
         """
-        Instantiantes own clock
+        Instantiates own clock.
         Provides multiple return states:
-        False - pass
-        True - fail OR quit: skip results screen and play fail graphic if fail
+        False - pass.
+        True - fail OR quit: skip results screen and play fail graphic if fail.
         """
 
+        QUIT = False
         KEY_QUEUE = Queue()
+
         def get_key_events():
             while True:
                 for event in pg.event.get([pg.KEYDOWN, pg.KEYUP]):
                     timestamp = Game.PASSED_TIME
                     key_time = {"key": event, "time": timestamp}
                     KEY_QUEUE.put(key_time)
-                    time.wait(1)
+                    time.delay(1)
 
-        key_thread = threading.Thread(target=get_key_events, args=(KEY_QUEUE,))
+        key_thread = threading.Thread(target=get_key_events)
         key_thread.daemon = True
         key_thread.start()
 
         def failscreen() -> None:
-            """
-            Should be called upon fail to display the fail graphic
-            """
+            """Display the fail graphic upon failure."""
             pass
 
         health = 1000
-
         CLOCK = App.CLOCK
-
         SONG = Game.get_audio(level)
         LEVEL_LOADED = Game.load_level(level)
+
         for note in LEVEL_LOADED.notes:
             Game.LOADED.add(note)
 
-        Game.START_TIME = App.DELTA_TIME()  # call right before loop for accuracy
+        Game.START_TIME = App.DELTA_TIME()  # Call right before loop for accuracy
         Game.PASSED_TIME = Game.START_TIME
 
         AudioWrapper.play(SONG, AudioWrapper.song)
         INGAME = True
+
+        # Dictionary to store key event lists for each key
+        key_events_this_frame: dict[str, list[dict]] = {
+            "s": [],
+            "d": [],
+            "f": [],
+            " ": [],
+            "j": [],
+            "k": [],
+            "l": [],
+        }
+
+        # Dictionary to track currently held keys for long notes
+        held_keys = {}
+
         while INGAME:
             Game.PASSED_TIME = App.DELTA_TIME() - Game.START_TIME
+
+            # Move notes from LOADED to ACTIVE based on time
             for sp in Game.LOADED:
                 if sp.time <= Game.PASSED_TIME - 2000:
                     sp.remove(Game.LOADED)
                     sp.add(Game.ACTIVE)
 
+            # Reset key events per frame
+            for key in key_events_this_frame:
+                key_events_this_frame[key].clear()
+
+            # Process input events
+            while not KEY_QUEUE.empty():
+                event_data = KEY_QUEUE.get()
+                pressed = event_data["key"]
+                timestamp = event_data["time"]
+
+                # Store multiple keydown and keyup events for each key
+                key_name = pg.key.name(pressed.key)
+                if key_name in key_events_this_frame:
+                    key_events_this_frame[key_name].append(
+                        {"event": pressed.type, "time": timestamp}
+                    )
+
+            # Process active notes based on key events
             if not auto:
-                keysdown_thisframe: dict[str, int] = dict()
-                keysup_thisframe: dict[str, int] = dict()
-                while not KEY_QUEUE.empty():
-                    events = KEY_QUEUE.get()
-                    pressed = events["key"]
-                    timestamp = events["time"]
+                notes_hit_this_frame = set()
 
-                    if pressed.type == KEYUP:
-                        if key.name(pressed.key) == 's':
-                            keysdown_thisframe["s"] = timestamp
-                        if key.name(pressed.key) == 'd':
-                            keysdown_thisframe["d"] = timestamp
-                        if key.name(pressed.key) == 'f':
-                            keysdown_thisframe["f"] = timestamp
-                        if key.name(pressed.key) == ' ':
-                            keysdown_thisframe[" "] = timestamp
-                        if key.name(pressed.key) == 'j':
-                            keysdown_thisframe["j"] = timestamp
-                        if key.name(pressed.key) == 'k':
-                            keysdown_thisframe["k"] = timestamp
-                        if key.name(pressed.key) == 'l':
-                            keysdown_thisframe["l"] = timestamp
-                    if pressed.type == KEYDOWN:
-                        if key.name(pressed.key) == 's':
-                            keysup_thisframe["s"] = timestamp
-                        if key.name(pressed.key) == 'd':
-                            keysup_thisframe["d"] = timestamp
-                        if key.name(pressed.key) == 'f':
-                            keysup_thisframe["f"] = timestamp
-                        if key.name(pressed.key) == ' ':
-                            keysup_thisframe[" "] = timestamp
-                        if key.name(pressed.key) == 'j':
-                            keysup_thisframe["j"] = timestamp
-                        if key.name(pressed.key) == 'k':
-                            keysup_thisframe["k"] = timestamp
-                        if key.name(pressed.key) == 'l':
-                            keysup_thisframe["l"] = timestamp
+                # Iterate over each key event that occurred this frame
+                for key, events in key_events_this_frame.items():
+                    for event in events:
+                        if event["event"] == pg.KEYDOWN:
+                            # Process each note in the active notes list
+                            for note in Game.ACTIVE:
+                                if note in notes_hit_this_frame:
+                                    continue  # Skip notes that were already hit in this frame
 
+                                # Check if the note matches the key and is within the hit window
+                                hit_window = abs(Game.PASSED_TIME - note.time)
+                                if (
+                                    note.required_key == key
+                                    and hit_window <= Conf.HIT_WINDOWS["miss"]
+                                ):
+                                    if note.is_long_note:
+                                        # Long note: store it as held
+                                        held_keys[key] = {
+                                            "note": note,
+                                            "start_time": Game.PASSED_TIME,
+                                        }
+                                    else:
+                                        # Short note: Check timing window and post appropriate event
+                                        if hit_window <= Conf.HIT_WINDOWS["perfect"]:
+                                            pg.event.post(
+                                                pg.event.Event(Game.plusperfect)
+                                            )
+                                        elif hit_window <= Conf.HIT_WINDOWS["perfect"]:
+                                            pg.event.post(pg.event.Event(Game.perfect))
+                                        elif hit_window <= Conf.HIT_WINDOWS["great"]:
+                                            pg.event.post(pg.event.Event(Game.great))
+                                        elif hit_window <= Conf.HIT_WINDOWS["good"]:
+                                            pg.event.post(pg.event.Event(Game.good))
+                                        else:
+                                            pg.event.post(pg.event.Event(Game.miss))
+
+                                        note.remove(Game.ACTIVE)
+                                        note.add(Game.PASSED)
+                                        notes_hit_this_frame.add(note)
+                                        break
+
+                        elif event["event"] == pg.KEYUP:
+                            # Handle key release for long notes
+                            if key in held_keys:
+                                held_note_info = held_keys[key]
+                                note = held_note_info["note"]
+
+                                # Check if key is released within the long note's release window
+                                hit_window = abs(Game.PASSED_TIME - note.end_time)
+                                if hit_window <= Conf.HIT_WINDOWS["miss"]:
+                                    if hit_window <= Conf.HIT_WINDOWS["plusperfect"]:
+                                        pg.event.post(
+                                            pg.event.Event(Game.plusperfect)
+                                        )  # Successful long note release
+                                    elif hit_window <= Conf.HIT_WINDOWS["perfect"]:
+                                        pg.event.post(pg.event.Event(Game.perfect))
+                                    elif hit_window <= Conf.HIT_WINDOWS["great"]:
+                                        pg.event.post(pg.event.Event(Game.great))
+                                    elif hit_window <= Conf.HIT_WINDOWS["good"]:
+                                        pg.event.post(pg.event.Event(Game.good))
+                                    else:
+                                        pg.event.post(pg.event.Event(Game.miss))
+
+                                    note.remove(Game.ACTIVE)
+                                    note.add(Game.PASSED)
+                                else:
+                                    # Penalize for releasing too early or too late
+                                    pg.event.post(pg.event.Event(Game.miss))
+                                    note.remove(Game.ACTIVE)
+                                    note.add(Game.PASSED)
+
+                                # Remove the key from held_keys once it's released
+                                del held_keys[key]
+
+                # Handle notes that weren't hit and are now too late
                 for note in Game.ACTIVE:
-                    if note.time <= Game.PASSED_TIME - 150:
+                    if note.time <= Game.PASSED_TIME - Conf.HIT_WINDOWS["miss"]:
                         note.remove(Game.ACTIVE)
                         note.add(Game.PASSED)
-                        event.post(event.Event(Game.miss))
+                        pg.event.post(pg.event.Event(Game.miss))
 
-            else:
+            else:  # Auto-play logic
                 for note in Game.ACTIVE:
                     if note.time <= Game.PASSED_TIME - 10:
                         note.remove(Game.ACTIVE)
                         note.add(Game.PASSED)
-                        event.post(event.Event(Game.plusperfect))
+                        pg.event.post(pg.event.Event(Game.plusperfect))
 
             Game.ACTIVE.update()
             CLOCK.tick_busy_loop(120)
+
             if health <= 0:
+                failscreen()
                 break
+            elif QUIT:
+                break
+            elif len(Game.ACTIVE) == 0:
+                INGAME = False
+
         else:
             return False
         return True
@@ -221,6 +299,19 @@ class Note(Object):
         hits and misses are handled immediately before notes are passed here
         """
         pass
+
+    @property
+    def required_key(self) -> str:
+        table = {
+            0: "s",
+            1: "d",
+            2: "f",
+            3: " ",
+            4: "j",
+            5: "k",
+            6: "l",
+        }
+        return table[self.lane - 1]
 
     _white_tex = None
     _blue_tex = None
