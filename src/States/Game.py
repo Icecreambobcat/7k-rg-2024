@@ -248,16 +248,16 @@ class Game:
                 # Handle notes that weren't hit and are now too late
                 for note in Game.ACTIVE:
                     if note.time <= Game.PASSED_TIME - Conf.HIT_WINDOWS["miss"]:
+                        SCORE += Conf.SCORING["miss"]
                         note.remove(Game.ACTIVE)
                         note.add(Game.PASSED)
-                        pg.event.post(pg.event.Event(Game.miss))
 
             else:  # Auto-play logic
                 for note in Game.ACTIVE:
                     if note.time <= Game.PASSED_TIME - 10:
+                        SCORE += Conf.SCORING["plusperfect"]
                         note.remove(Game.ACTIVE)
                         note.add(Game.PASSED)
-                        pg.event.post(pg.event.Event(Game.plusperfect))
 
             for n in Game.PASSED:
                 n.kill()
