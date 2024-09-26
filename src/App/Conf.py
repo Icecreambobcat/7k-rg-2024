@@ -53,6 +53,14 @@ class Conf:
         "miss": 200,
     }
 
+    SCORING = {
+        "plusperfect": 301,
+        "perfect": 300,
+        "great": 100,
+        "good": 50,
+        "miss": 0,
+    }
+
     """
     Yet to be implemented
     """

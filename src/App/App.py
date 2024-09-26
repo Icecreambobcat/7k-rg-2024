@@ -58,6 +58,9 @@ class App:
     CURRENT_LEVEL: Level_FILE
     AUTO: bool
     IMAGES: dict[str, list[Path | None]]
+    FONT32 = font.Font
+    FONT24 = font.Font
+    FONT12 = font.Font
 
 
     @staticmethod
@@ -78,6 +81,9 @@ class App:
         display.set_caption("7/4k rg 0.1.0")
         App.STATE = "Menu"
         App.AUTO = False
+        App.FONT32 = font.Font(Conf.FONT_TEX, 32)
+        App.FONT24 = font.Font(Conf.FONT_TEX, 24)
+        App.FONT12 = font.Font(Conf.FONT_TEX, 12)
 
     @staticmethod
     def run() -> Never:

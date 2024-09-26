@@ -42,6 +42,13 @@ class Game:
     perfect = event.custom_type()
     plusperfect = event.custom_type()
 
+    """
+    for some reason my type checker really doesn't like pulling fonts from app so here they are
+    """
+    FONT32 = font.Font(Conf.FONT_TEX, 32)
+    FONT24 = font.Font(Conf.FONT_TEX, 24)
+    FONT12 = font.Font(Conf.FONT_TEX, 12)
+
     START_TIME: int
     PASSED_TIME: int
 
@@ -57,7 +64,6 @@ class Game:
     @staticmethod
     def ingame_loop(level: Level_FILE, auto: bool) -> bool:
         """
-        Instantiates own clock.
         Provides multiple return states:
         False - pass.
         True - fail OR quit: skip results screen and play fail graphic if fail.
@@ -82,7 +88,28 @@ class Game:
             """Display the fail graphic upon failure."""
             pass
 
-        health = 1000
+        def load_tex_default() -> None:
+            """loads UI elememnts"""
+            bg = image.load(Conf.BG_TEX)
+            bg = transform.scale(bg, (1920, 1080))
+            line = image.load(Conf.JUDGEMENT_LINE)
+            line = transform.scale(line, (1400, 20))
+            App.SCREEN.blit(bg, (0, 0))
+            App.SCREEN.blit(line, Conf.LINECOORDS)
+
+        def render_score(screen: Surface, score: int) -> None:
+            score_text = Game.FONT32.render(f"{score}", True, (255, 255, 255))
+
+            # Position the score text aligned to the top-right
+            score_rect = score_text.get_rect(
+                topright=(1920 - 10, 10)
+            )  # 10px padding from the edge
+
+            # Draw the score onto the screen
+            screen.blit(score_text, score_rect)
+
+        HEALTH = 1000
+        SCORE = 0
         CLOCK = App.CLOCK
         SONG = Game.get_audio(level)
         LEVEL_LOADED = Game.load_level(level)
@@ -111,6 +138,7 @@ class Game:
         held_keys = {}
 
         while INGAME:
+            load_tex_default()
             Game.PASSED_TIME = App.DELTA_TIME() - Game.START_TIME
 
             # Move notes from LOADED to ACTIVE based on time
@@ -167,18 +195,19 @@ class Game:
                                         }
                                     else:
                                         # Short note: Check timing window and post appropriate event
-                                        if hit_window <= Conf.HIT_WINDOWS["perfect"]:
-                                            pg.event.post(
-                                                pg.event.Event(Game.plusperfect)
-                                            )
+                                        if (
+                                            hit_window
+                                            <= Conf.HIT_WINDOWS["plusperfect"]
+                                        ):
+                                            SCORE += Conf.SCORING["plusperfect"]
                                         elif hit_window <= Conf.HIT_WINDOWS["perfect"]:
-                                            pg.event.post(pg.event.Event(Game.perfect))
+                                            SCORE += Conf.SCORING["perfect"]
                                         elif hit_window <= Conf.HIT_WINDOWS["great"]:
-                                            pg.event.post(pg.event.Event(Game.great))
+                                            SCORE += Conf.SCORING["great"]
                                         elif hit_window <= Conf.HIT_WINDOWS["good"]:
-                                            pg.event.post(pg.event.Event(Game.good))
+                                            SCORE += Conf.SCORING["good"]
                                         else:
-                                            pg.event.post(pg.event.Event(Game.miss))
+                                            SCORE += Conf.SCORING["miss"]
 
                                         note.remove(Game.ACTIVE)
                                         note.add(Game.PASSED)
@@ -195,23 +224,21 @@ class Game:
                                 hit_window = abs(Game.PASSED_TIME - note.end_time)
                                 if hit_window <= Conf.HIT_WINDOWS["miss"]:
                                     if hit_window <= Conf.HIT_WINDOWS["plusperfect"]:
-                                        pg.event.post(
-                                            pg.event.Event(Game.plusperfect)
-                                        )  # Successful long note release
+                                        SCORE += Conf.SCORING["plusperfect"]
                                     elif hit_window <= Conf.HIT_WINDOWS["perfect"]:
-                                        pg.event.post(pg.event.Event(Game.perfect))
+                                        SCORE += Conf.SCORING["perfect"]
                                     elif hit_window <= Conf.HIT_WINDOWS["great"]:
-                                        pg.event.post(pg.event.Event(Game.great))
+                                        SCORE += Conf.SCORING["great"]
                                     elif hit_window <= Conf.HIT_WINDOWS["good"]:
-                                        pg.event.post(pg.event.Event(Game.good))
+                                        SCORE += Conf.SCORING["good"]
                                     else:
-                                        pg.event.post(pg.event.Event(Game.miss))
+                                        SCORE += Conf.SCORING["miss"]
 
                                     note.remove(Game.ACTIVE)
                                     note.add(Game.PASSED)
                                 else:
                                     # Penalize for releasing too early or too late
-                                    pg.event.post(pg.event.Event(Game.miss))
+                                    SCORE += Conf.SCORING["miss"]
                                     note.remove(Game.ACTIVE)
                                     note.add(Game.PASSED)
 
@@ -232,10 +259,13 @@ class Game:
                         note.add(Game.PASSED)
                         pg.event.post(pg.event.Event(Game.plusperfect))
 
+            for n in Game.PASSED:
+                n.kill()
+
             Game.ACTIVE.update()
             CLOCK.tick_busy_loop(120)
 
-            if health <= 0:
+            if HEALTH <= 0:
                 failscreen()
                 break
             elif QUIT:
@@ -293,15 +323,6 @@ class Note(Object):
     @property
     @abstractmethod
     def lane(self) -> int:
-        pass
-
-    @property
-    @abstractmethod
-    def state(self) -> sprite.Group:
-        """
-        Handles whether objects are still updated
-        hits and misses are handled immediately before notes are passed here
-        """
         pass
 
     @property
@@ -366,15 +387,6 @@ class TapNote(Note):
     def rect(self) -> Rect:
         return self.image.get_rect()
 
-    @property
-    def state(self) -> sprite.Group:
-        return self._state
-
-    @state.setter
-    def state(self, value: sprite.Group) -> None:
-        self._state = value
-        self.add(value)
-
 
 class LongNote(Note):
     """
@@ -391,9 +403,13 @@ class LongNote(Note):
         App.SCREEN.blit(self.image, self.position)
         App.SCREEN.blit(self.image_body, self.position)
 
+    def calc_end_pos(self) -> int:
+        out = (self.endtime - Game.PASSED_TIME) * Conf.MULTIPLIER + Conf.CONSTANT
+        return int(out)
+
     @property
     def position(self) -> tuple[int, int]:
-        return (Note.calc_pos(self), self.lane)
+        return (self.lane, self.calc_pos())
 
     @property
     def time(self) -> int:
@@ -412,18 +428,9 @@ class LongNote(Note):
         return self.image.get_rect()
 
     @property
-    def state(self) -> sprite.Group:
-        return self._state
-
-    @state.setter
-    def state(self, value: sprite.Group) -> None:
-        self._state = value
-        self.add(value)
-
-    @property
     def image_body(self) -> Surface:
         tex = image.load(Conf.NOTE_TEX_BODY)
-        tex = transform.scale(tex, ((self.endtime - self.time) / 50, 100))
+        tex = transform.scale(tex, (self.calc_end_pos() - self.calc_pos(), 100))
         return tex
 
     @property
@@ -455,7 +462,6 @@ class Level_MEMORY:
 
     @staticmethod
     def load_notes(line: list[str]) -> Note:
-        note: TapNote | LongNote
         obj_type = None
         time = int(line[2])
         endtime = time
