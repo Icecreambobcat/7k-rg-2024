@@ -22,7 +22,6 @@ class Lib:
             "background": [],
             "menu": [],
             "button": [],
-            "misc": [],
         }
         for img in image_dir.iterdir():
             if img.name.startswith("char_sprite"):
@@ -33,8 +32,6 @@ class Lib:
                 out["menu"].append(img)
             elif img.name.startswith("button"):
                 out["button"].append(img)
-            else:
-                out["misc"].append(img)
 
         return out
 
