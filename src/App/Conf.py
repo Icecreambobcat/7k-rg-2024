@@ -24,7 +24,12 @@ class Conf:
         "lane6": "l",
     }
     SCREEN_SIZE: tuple = (1920, 1080)
+    LINECOORDS = (210, 50)
 
+    """
+    FWIW it's just better to hard path every image and asset rather than try to use an auto parser
+    """
+    BG = Path(Lib.PROJECT_ROOT, "Assets", "Images", "RG_BG.jpg")
     JUDGEMENT_LINE = Path(Lib.PROJECT_ROOT, "Assets", "Images", "judgement_line.png")
     NOTE_TEX_BLUE = Path(Lib.PROJECT_ROOT, "Assets", "Images", "blue_note_tex.png")
     NOTE_TEX_WHITE = Path(Lib.PROJECT_ROOT, "Assets", "Images", "white_note_tex.png")

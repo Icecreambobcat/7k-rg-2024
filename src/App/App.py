@@ -78,7 +78,6 @@ class App:
         display.set_caption("7/4k rg 0.1.0")
         App.STATE = "Menu"
         App.AUTO = False
-        App.IMAGES = Lib.load_images()
 
     @staticmethod
     def run() -> Never:
