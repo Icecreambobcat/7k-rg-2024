@@ -54,13 +54,13 @@ class LevelSelect:
                     text = App.FONT24.render(
                         f"> {song.level.meta["TitleUnicode"]} | {song.level.meta["Version"]}",
                         True,
-                        (255, 255, 255),
+                        (255, 255, 115),
                     )
                 else:
                     text = App.FONT24.render(
                         f"  {song.level.meta["TitleUnicode"]} | {song.level.meta["Version"]}",
                         True,
-                        (215, 215, 215),
+                        (115, 215, 215),
                     )
                 prompt = App.FONT32.render(
                     "Select with the arrow keys, press enter to start. Toggle autoplay with tab",

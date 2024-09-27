@@ -97,7 +97,7 @@ class App:
                     elif out is True:
                         App.STATE = "Menu"
                 case "Game":
-                    out = Game.ingame_loop(App.CURRENT_LEVEL, App.AUTO)
+                    out = Game.ingame_loop(App.CURRENT_LEVEL)
                     if out is False:
                         App.STATE = "Results"
                     elif out is True:
@@ -227,7 +227,7 @@ class Object(ABC, sprite.Sprite):  # Base class for all onscreen objects
     def image(self) -> Surface:
         pass
 
-    @property
-    @abstractmethod
-    def rect(self) -> rect.Rect:
-        pass
+    # @property
+    # @abstractmethod
+    # def rect(self) -> rect.Rect:
+    #     pass

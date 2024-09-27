@@ -34,14 +34,15 @@ class Conf:
     JUDGEMENT_LINE = Path(Lib.PROJECT_ROOT, "Assets", "Images", "judgement_line.png")
     NOTE_TEX_BLUE = Path(Lib.PROJECT_ROOT, "Assets", "Images", "blue_note_tex.png")
     NOTE_TEX_WHITE = Path(Lib.PROJECT_ROOT, "Assets", "Images", "white_note_tex.png")
+    NOTE_TEX_GOLD = Path(Lib.PROJECT_ROOT, "Assets", "Images", "gold_note_tex.png")
     NOTE_TEX_BODY = Path(Lib.PROJECT_ROOT, "Assets", "Images", "note_body_tex.png")
     # NOTE_TEX_TAIL = Path(Lib.PROJECT_ROOT, "Assets", "Images", "note_tail_tex.png")
     # change file formats as necessary
     # however default textures are shipped with the game
 
     # These two handle scroll velocity
-    CONSTANT = 1000
-    MULTIPLIER = 0.8
+    CONSTANT = 950
+    MULTIPLIER = 2.5
 
     HIT_WINDOWS = {
         "plusperfect": 30,
