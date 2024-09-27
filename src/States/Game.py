@@ -11,7 +11,6 @@ import pygame as pg
 from pygame import (
     Rect,
     draw,
-    font,
     mixer,
     rect,
     time,
