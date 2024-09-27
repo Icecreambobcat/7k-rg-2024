@@ -8,17 +8,18 @@ from pygame import (
     surface,
     time,
     display,
-    event,
     key,
     image,
     mouse,
     Surface,
     sprite,
+    transform,
 )
 from typing import (
     Any,
 )
 
+from App.Conf import Conf
 from States.Game import Level_FILE
 
 
@@ -35,17 +36,37 @@ class LevelSelect:
         return true to go back to the main menu
         """
         selected: str = ""
+        BG = image.load(Conf.LEVELSELECT_BG)
+        BG = transform.scale(BG, (1920, 1080))
+        QUIT = False
 
         SELECT = True
         CLOCK = App.CLOCK
 
+        def draw_ui() -> None:
+            """
+            Draws the background and individual songs according to App.LEVELS.keys()[0] and creates a dropdown/alternative menu for App.LEVELS.keys()[1]
+            """
+            App.SCREEN.blit(BG, (0, 0))
+
         while SELECT:
+            if False:
+                SELECT = False  # trigger this once the level is selected
+
+            for event in pg.event.get(pg.KEYDOWN):
+                if event.key == pg.K_ESCAPE:
+                    QUIT = True
+
+            if QUIT:
+                break
+
+            display.flip()
             CLOCK.tick_busy_loop(120)
-            break
+
         else:
             if selected is not "":
                 for l in App.LEVELS.keys():
-                    if selected == l[0]:
+                    if selected == l[1]:
                         App.CURRENT_LEVEL = App.LEVELS[l]
             return False
         return True

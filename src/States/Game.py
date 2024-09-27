@@ -16,7 +16,6 @@ from pygame import (
     rect,
     time,
     display,
-    event,
     key,
     image,
     mouse,
@@ -64,7 +63,12 @@ class Game:
         True - fail OR quit: skip results screen and play fail graphic if fail.
         """
 
-        QUIT = False
+        bg = image.load(Conf.BG_TEX)
+        bg = transform.scale(bg, (1920, 1080))
+        line = image.load(Conf.JUDGEMENT_LINE)
+        line = transform.scale(line, (1400, 20))
+
+        QUIT_LEVEL = False
         KEY_QUEUE = Queue()
         QUEUE_LOCK = Lock()
 
@@ -88,19 +92,15 @@ class Game:
 
         def load_tex_UI() -> None:
             """loads UI elememnts"""
-            bg = image.load(Conf.BG_TEX)
-            bg = transform.scale(bg, (1920, 1080))
-            line = image.load(Conf.JUDGEMENT_LINE)
-            line = transform.scale(line, (1400, 20))
             App.SCREEN.blit(bg, (0, 0))
             App.SCREEN.blit(line, Conf.LINECOORDS)
 
         def render_ELEMENTS() -> None:
             score_text = Game.FONT32.render(f"{SCORE}", True, (255, 255, 255))
             score_rect = score_text.get_rect(topright=(1920 - 10, 10))
-            App.SCREEN.blit(score_text, score_rect)
             hp_rect = rect.Rect(10, 10, HEALTH // 2, 40)
             draw.rect(App.SCREEN, (255, 255, 255), hp_rect)
+            App.SCREEN.blit(score_text, score_rect)
 
         def mod_hp(hp: int, amount: int) -> int:
             hp += amount
@@ -115,10 +115,12 @@ class Game:
             quit = False
             while pause:
                 App.SCREEN.fill((0, 0, 0))
-                pause_text = Game.FONT32.render("PAUSED - ESC TO QUIT, ANY KEY TO CONTINUE", True, (255, 255, 255))
+                pause_text = Game.FONT32.render(
+                    "PAUSED - ESC TO QUIT, ANY KEY TO CONTINUE", True, (255, 255, 255)
+                )
                 pause_rect = pause_text.get_rect(center=(960, 540))
                 App.SCREEN.blit(pause_text, pause_rect)
-                for event in pg.event.get():
+                for event in pg.event.get([pg.KEYDOWN, pg.QUIT]):
                     if event.type == pg.KEYDOWN:
                         # if key pressed is esc: then break
                         if event.key == pg.K_ESCAPE:
@@ -140,7 +142,9 @@ class Game:
                             App.SCREEN.blit(pause_text, pause_rect)
                             time.delay(1000)
                             display.flip()
-                            
+                    elif event.type == pg.QUIT:
+                        App.quit_app()
+
                 display.flip()
                 App.CLOCK.tick_busy_loop(120)
                 if quit:
@@ -216,7 +220,7 @@ class Game:
                         if event["event"] == pg.KEYDOWN:
                             # if key is esc then pause
                             if key == "escape":
-                                QUIT = pause_loop()
+                                QUIT_LEVEL = pause_loop()
                             # Process each note in the active notes list
                             for note in Game.ACTIVE:
                                 if note in notes_hit_this_frame:
@@ -326,11 +330,15 @@ class Game:
             if HEALTH <= 0:
                 failscreen()
                 break
-            elif QUIT:
+            elif QUIT_LEVEL:
                 break
             elif len(Game.ACTIVE) == 0:
                 INGAME = False
 
+            if pg.event.get(pg.QUIT):
+                App.quit_app()
+
+            display.flip()
             CLOCK.tick_busy_loop(120)
 
         else:

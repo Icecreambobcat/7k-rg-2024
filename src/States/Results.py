@@ -14,6 +14,7 @@ from pygame import (
     mouse,
     Surface,
     sprite,
+    transform,
 )
 from typing import (
     Any,
@@ -33,6 +34,7 @@ class Results:
         RESULTS = True
         CLOCK = App.CLOCK
         while RESULTS:
+            display.flip()
             CLOCK.tick_busy_loop(120)
             break
         else:

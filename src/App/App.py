@@ -19,7 +19,6 @@ from pygame import (
     rect,
     time,
     display,
-    event,
     key,
     image,
     mouse,
@@ -117,8 +116,13 @@ class App:
                         App.STATE = "LevelSelect"
                     elif out is True:
                         App.STATE = "Game"
+
+            display.flip()
             App.CLOCK.tick_busy_loop(120)
 
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                App.quit_app()
         App.quit_app()
 
     @staticmethod

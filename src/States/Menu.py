@@ -8,12 +8,12 @@ from pygame import (
     surface,
     time,
     display,
-    event,
     key,
     image,
     mouse,
     Surface,
     sprite,
+    transform,
 )
 from typing import (
     Any,
@@ -33,6 +33,7 @@ class Menu:
         MENU = True
         CLOCK = App.CLOCK
         while MENU:
+            display.flip()
             CLOCK.tick_busy_loop(120)
             break
         else:
