@@ -36,6 +36,7 @@ python3 -m src.Init.main
 - Hold notes should be released as their bodies finish crossing the line
 - Custom maps can be imported into the game by unzipping a `.osz` file and moving the directory into the `Levels` folder
   - It's recommended that you don't have more than 10 difficulties installed at any given time
+- As usual... if something breaks, try relaunching the game a few times first
   
 ## CUSTOM FEATURES
 
