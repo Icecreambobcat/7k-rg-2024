@@ -3,37 +3,21 @@ from collections.abc import Callable
 from pathlib import Path
 import sys
 from typing import (
-    Any,
     Never,
 )
-
 from abc import ABC, abstractmethod  # Required for abstract classes
-
-import os
-
 import pygame as pg
 from pygame import (
-    Rect,
     font,
     mixer,
     rect,
     time,
     display,
-    key,
-    image,
-    mouse,
     Surface,
     sprite,
 )
 
-from .parser import Parser, Level_FILE
-from .lib import Lib
-from ..States.Menu import Menu
-from ..States.Game import Game
-from ..States.LevelSelect import LevelSelect
-from ..States.Results import Results
-
-from Conf import Conf
+from ..shared import Parser, Level_FILE, Lib, Menu, Game, LevelSelect, Results, Conf
 
 
 class App:
@@ -61,7 +45,6 @@ class App:
     FONT24 = font.Font(Conf.FONT_TEX, 24)
     FONT12 = font.Font(Conf.FONT_TEX, 12)
     RECENTSCORE: int = 0
-
 
     @staticmethod
     def init_game(log: bool) -> None:

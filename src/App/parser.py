@@ -1,5 +1,5 @@
 from __future__ import annotations
-from .lib import Lib
+from ..shared import Level_FILE, Lib
 from pathlib import Path
 from typing import Any
 

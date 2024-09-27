@@ -2,10 +2,7 @@ from __future__ import annotations
 from abc import abstractmethod
 from pathlib import Path
 
-from ..App.App import Object, App, AudioWrapper
-from ..App.lib import Lib
-from ..App.Conf import Conf
-from ..App.parser import Level_FILE
+from ..shared import App, AudioWrapper, Object, Level_FILE, Lib, Game, Conf
 import pygame as pg
 from pygame import (
     Rect,
@@ -15,19 +12,11 @@ from pygame import (
     rect,
     time,
     display,
-    key,
     image,
-    mouse,
     Surface,
     sprite,
     transform,
 )
-from typing import (
-    Any,
-    Never,
-)
-
-import threading
 from threading import Lock, Thread
 from queue import Queue
 
