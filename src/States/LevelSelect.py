@@ -69,17 +69,17 @@ class LevelSelect:
                     True,
                     (255, 255, 255),
                 )
-                prompt = App.FONT32.render("Select with the arrow keys, press enter to start", True, (255, 255, 255))
+                prompt = App.FONT32.render(
+                    "Select with the arrow keys, press enter to start",
+                    True,
+                    (255, 255, 255),
+                )
                 App.SCREEN.blit(prompt, (100, 400))
                 App.SCREEN.blit(text, (row * 40 + 200, 400))
                 row += 1
 
         while SELECT:
             draw_ui()
-
-            if False:
-                SELECT = False  # trigger this once the level is selected
-
             for event in pg.event.get(pg.KEYDOWN):
                 if event.key == pg.K_RETURN:
                     SELECT = False
