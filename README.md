@@ -44,6 +44,12 @@ python3 -m src.Init.main
   - Extremely high room for expansion with full parsing of the files
   - Auto parsing and loading of level assets
   - Levels are loaded into memory at the start of gameplay
+  - To load extra maps:
+    - Unzip a `.osz` file
+    - rename the directory to the name of the song as seen on `osu.ppy.sh`
+    - move it into `Levels`
+    - go to the main menu and then back to the level select
+    - the song should be right there!
 - Literally a rhythm game
   - Do I really need to tell you what a rhythm game is?
   - Temporary score saving
