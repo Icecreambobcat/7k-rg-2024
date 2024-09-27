@@ -30,7 +30,9 @@ class Conf:
     FWIW it's just better to hard path every image and asset rather than try to use an auto parser
     """
     LEVELSELECT_BG = Path(Lib.PROJECT_ROOT, "Assets", "Images", "LEVELSELECT_BG.jpg")
-    FONT_TEX = Path(Lib.PROJECT_ROOT, "Assets", "Fonts", "JetBrainsMonoNerdFont-Regular.ttf")
+    FONT_TEX = Path(
+        Lib.PROJECT_ROOT, "Assets", "Fonts", "JetBrainsMonoNerdFont-Regular.ttf"
+    )
     BG_TEX = Path(Lib.PROJECT_ROOT, "Assets", "Images", "RG_BG.jpg")
     JUDGEMENT_LINE = Path(Lib.PROJECT_ROOT, "Assets", "Images", "judgement_line.png")
     NOTE_TEX_BLUE = Path(Lib.PROJECT_ROOT, "Assets", "Images", "blue_note_tex.png")
@@ -43,7 +45,7 @@ class Conf:
     """
     These two handle scroll velocity
     """
-    CONSTANT = 0
+    CONSTANT = 800
     MULTIPLIER = 0.5
 
     HIT_WINDOWS = {
