@@ -7,8 +7,6 @@ from App.lib import Lib
 from App.Conf import Conf
 import pygame as pg
 from pygame import (
-    KEYDOWN,
-    KEYUP,
     Rect,
     draw,
     font,
