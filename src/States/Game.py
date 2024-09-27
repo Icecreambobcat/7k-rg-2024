@@ -622,8 +622,12 @@ class Level_FILE:
                             section = ""
                             continue
 
-                if section == "Editor" or section == "Events":
+                if section == "Editor":
                     continue
+
+                elif section == "Events":
+                    if not line.startswith("//"):
+                        General["Background"] = line[2].lstrip('"').rstrip('"')
 
                 elif section == "General":
                     pair = line.replace(" ", "").split(":")

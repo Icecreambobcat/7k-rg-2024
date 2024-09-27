@@ -20,6 +20,7 @@ from typing import (
 )
 
 from App.Conf import Conf
+from App.lib import Lib
 from States.Game import Level_FILE
 
 
@@ -43,18 +44,54 @@ class LevelSelect:
         SELECT = True
         CLOCK = App.CLOCK
 
+        SONG_LIST: list[LevelObj] = list()
+        for level in App.LEVELS.values():
+            SONG_LIST.append(LevelObj(level))
+
+        SONG_LIST[0].selected = True
+        index = 0
+
         def draw_ui() -> None:
             """
             Draws the background and individual songs according to App.LEVELS.keys()[0] and creates a dropdown/alternative menu for App.LEVELS.keys()[1]
             """
             App.SCREEN.blit(BG, (0, 0))
+            row = 0
+            for song in SONG_LIST:
+                if song.selected:
+                    text = App.FONT24.render(
+                        f"> {song.level.info["TitleUnicode"]} | {song.level.meta["Version"]}",
+                        True,
+                        (255, 255, 51),
+                    )
+                text = App.FONT24.render(
+                    f"  {song.level.info["TitleUnicode"]} | {song.level.meta["Version"]}",
+                    True,
+                    (255, 255, 255),
+                )
+                prompt = App.FONT32.render("Select with the arrow keys, press enter to start", True, (255, 255, 255))
+                App.SCREEN.blit(prompt, (100, 400))
+                App.SCREEN.blit(text, (row * 40 + 200, 400))
+                row += 1
 
         while SELECT:
+            draw_ui()
+
             if False:
                 SELECT = False  # trigger this once the level is selected
 
             for event in pg.event.get(pg.KEYDOWN):
-                if event.key == pg.K_ESCAPE:
+                if event.key == pg.K_RETURN:
+                    SELECT = False
+                elif event.key == pg.K_UP and index > 0:
+                    SONG_LIST[index].selected = False
+                    SONG_LIST[index - 1].selected = True
+                    index -= 1
+                elif event.key == pg.K_DOWN and index < len(SONG_LIST) - 1:
+                    SONG_LIST[index].selected = False
+                    SONG_LIST[index + 1].selected = True
+                    index += 1
+                elif event.key == pg.K_ESCAPE:
                     QUIT = True
 
             if QUIT:
@@ -64,37 +101,9 @@ class LevelSelect:
             CLOCK.tick_busy_loop(120)
 
         else:
-            if selected is not "":
-                for l in App.LEVELS.keys():
-                    if selected == l[1]:
-                        App.CURRENT_LEVEL = App.LEVELS[l]
+            App.CURRENT_LEVEL = SONG_LIST[index].level
             return False
         return True
-
-
-class Player(Object):
-    """
-    The player class is used for the song select screen to fulfill the requirement of a movable player
-    Probably gonna implement specific movement reading here but could also do it somewhere else
-    """
-
-    def __init__(self) -> None:
-        sprite.Sprite.__init__(self)
-
-        self.x = 0
-        self.y = 0
-
-    @property
-    def position(self) -> tuple[int, int]:
-        return (self.x, self.y)
-
-    @property
-    def image(self):
-        return self._image
-
-    @image.setter
-    def image(self, value):
-        self._image = value
 
 
 class LevelObj(Object):
@@ -106,21 +115,21 @@ class LevelObj(Object):
     This class is the graphical representation of selectable songs
     """
 
-    def __init__(self, x, y, level) -> None:
+    def __init__(self, level: Level_FILE) -> None:
         sprite.Sprite.__init__(self)
 
-        self.x = x
-        self.y = y
         self.level = level
+        self.selected = False
 
     @property
     def position(self) -> tuple[int, int]:
-        return (self.x, self.y)
+        return (0, 0)
 
     @property
     def image(self):
-        return self._image
+        img = transform.scale(image.load(Lib.GET_SONG_IMG(self.level)), (300, 300))
+        return img
 
-    @image.setter
-    def image(self, value):
-        self._image = value
+    @property
+    def rect(self) -> Rect:
+        return self.image.get_rect()
