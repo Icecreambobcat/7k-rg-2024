@@ -2,8 +2,6 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-from States.Game import Level_FILE
-
 
 class Lib:
     @staticmethod
@@ -13,7 +11,7 @@ class Lib:
         return root
 
     @staticmethod
-    def GET_SONG_IMG(level: Level_FILE) -> Path:
+    def GET_SONG_IMG(level) -> Path:
         return Path(
             Lib.PROJECT_ROOT,
             "Assets",

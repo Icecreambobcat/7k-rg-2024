@@ -26,12 +26,12 @@ from pygame import (
     sprite,
 )
 
-from App import parser
-from App.lib import Lib
-from States.Menu import Menu
-from States.Game import Game, Level_FILE
-from States.LevelSelect import LevelSelect
-from States.Results import Results
+from .parser import Parser, Level_FILE
+from .lib import Lib
+from ..States.Menu import Menu
+from ..States.Game import Game
+from ..States.LevelSelect import LevelSelect
+from ..States.Results import Results
 
 from Conf import Conf
 
@@ -70,7 +70,7 @@ class App:
         """
 
         pg.init()
-        App.LEVELS = parser.level_load()
+        App.LEVELS = Parser.level_load()
         App.LOGFILE = Path(Lib.PROJECT_ROOT, "STO", "LOG", "log")
         App.CLOCK = time.Clock()
         App.LOG = log

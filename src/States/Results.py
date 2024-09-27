@@ -20,7 +20,7 @@ from typing import (
     Any,
 )
 
-from App.Conf import Conf
+from ..App.Conf import Conf
 
 
 class Results:

@@ -19,9 +19,9 @@ from typing import (
     Any,
 )
 
-from App.Conf import Conf
-from App.lib import Lib
-from States.Game import Level_FILE
+from ..App.Conf import Conf
+from ..App.lib import Lib
+from Game import Level_FILE
 
 
 class LevelSelect:
