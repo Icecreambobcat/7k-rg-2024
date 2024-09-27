@@ -60,6 +60,7 @@ class App:
     FONT32 = font.Font(Conf.FONT_TEX, 32)
     FONT24 = font.Font(Conf.FONT_TEX, 24)
     FONT12 = font.Font(Conf.FONT_TEX, 12)
+    RECENTSCORE: int = 0
 
 
     @staticmethod

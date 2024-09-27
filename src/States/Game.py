@@ -66,6 +66,7 @@ class Game:
         line = image.load(Conf.JUDGEMENT_LINE)
         line = transform.scale(line, (1400, 20))
 
+        App.RECENTSCORE = 0
         QUIT_LEVEL = False
         KEY_QUEUE = Queue()
         QUEUE_LOCK = Lock()
@@ -86,7 +87,32 @@ class Game:
 
         def failscreen() -> None:
             """Display the fail graphic upon failure."""
-            pass
+            
+            fail = True
+            AudioWrapper.fadeout(1000, AudioWrapper.song)
+
+            for n in Game.LOADED:
+                n.kill()
+            for n in Game.PASSED:
+                n.kill()
+            for n in Game.ACTIVE:
+                n.kill()
+
+            while fail:
+                App.SCREEN.fill((0, 0, 0))
+                App.SCREEN.blit(bg, (0, 0))
+                App.SCREEN.blit(line, Conf.LINECOORDS)
+                failtext = Game.FONT32.render("FAILED!", True, (255, 0, 0))
+                failprompt = Game.FONT12.render("Press any key to return to song select", True, (255, 255, 255))
+                failrect = failtext.get_rect(center=(960, 540))
+                promptrect = failprompt.get_rect(center=(960, 580))
+                App.SCREEN.blits([(failtext, failrect), (failprompt, promptrect)])
+                display.flip()
+                App.CLOCK.tick_busy_loop(120)
+                if pg.event.get(pg.KEYDOWN):
+                    break
+                elif pg.event.get(pg.QUIT):
+                    App.quit_app()
 
         def load_tex_UI() -> None:
             """loads UI elememnts"""
@@ -330,8 +356,9 @@ class Game:
                 break
             elif QUIT_LEVEL:
                 break
-            elif len(Game.ACTIVE) == 0:
+            elif AudioWrapper.song.get_busy() == False:
                 INGAME = False
+                App.RECENTSCORE = SCORE
 
             if pg.event.get(pg.QUIT):
                 App.quit_app()
