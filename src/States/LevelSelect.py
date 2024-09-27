@@ -70,12 +70,18 @@ class LevelSelect:
                     (255, 255, 255),
                 )
                 prompt = App.FONT32.render(
-                    "Select with the arrow keys, press enter to start",
+                    "Select with the arrow keys, press enter to start. Toggle autoplay with space.",
                     True,
                     (255, 255, 255),
                 )
-                App.SCREEN.blit(prompt, (100, 400))
-                App.SCREEN.blit(text, (row * 40 + 200, 400))
+                auto = App.FONT24.render(
+                    "AUTOPLAY: " + ("ON" if App.AUTO else "OFF"),
+                    True,
+                    (255, 155, 155),
+                )
+                App.SCREEN.blit(prompt, (400, 100))
+                App.SCREEN.blit(text, (400, row * 40 + 200))
+                App.SCREEN.blit(auto, (400, 150))
                 row += 1
 
         while SELECT:
@@ -91,6 +97,8 @@ class LevelSelect:
                     SONG_LIST[index].selected = False
                     SONG_LIST[index + 1].selected = True
                     index += 1
+                elif event.key == pg.K_SPACE:
+                    App.AUTO = not App.AUTO
                 elif event.key == pg.K_ESCAPE:
                     QUIT = True
 
