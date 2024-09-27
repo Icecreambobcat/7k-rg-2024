@@ -30,6 +30,7 @@ from typing import (
 )
 
 import threading
+from threading import Lock, Thread
 from queue import Queue
 
 
@@ -65,16 +66,19 @@ class Game:
 
         QUIT = False
         KEY_QUEUE = Queue()
+        QUEUE_LOCK = Lock()
 
         def get_key_events():
             while True:
-                for event in pg.event.get([pg.KEYDOWN, pg.KEYUP]):
-                    timestamp = Game.PASSED_TIME
-                    key_time = {"key": event, "time": timestamp}
-                    KEY_QUEUE.put(key_time)
-                    time.delay(1)
+                events = pg.event.get([pg.KEYDOWN, pg.KEYUP])
+                timestamp = Game.PASSED_TIME
+                with QUEUE_LOCK:
+                    for event in events:
+                        key_time = {"key": event, "time": timestamp}
+                        KEY_QUEUE.put(key_time)
+                time.delay(1)
 
-        key_thread = threading.Thread(target=get_key_events)
+        key_thread = Thread(target=get_key_events)
         key_thread.daemon = True
         key_thread.start()
 
@@ -82,7 +86,7 @@ class Game:
             """Display the fail graphic upon failure."""
             pass
 
-        def load_tex_default() -> None:
+        def load_tex_UI() -> None:
             """loads UI elememnts"""
             bg = image.load(Conf.BG_TEX)
             bg = transform.scale(bg, (1920, 1080))
@@ -91,25 +95,17 @@ class Game:
             App.SCREEN.blit(bg, (0, 0))
             App.SCREEN.blit(line, Conf.LINECOORDS)
 
-        def render_score() -> None:
+        def render_ELEMENTS() -> None:
             score_text = Game.FONT32.render(f"{SCORE}", True, (255, 255, 255))
-
-            # Position the score text aligned to the top-right
-            score_rect = score_text.get_rect(
-                topright=(1920 - 10, 10)
-            )  # 10px padding from the edge
-
-            # Draw the score onto the screen
+            score_rect = score_text.get_rect(topright=(1920 - 10, 10))
             App.SCREEN.blit(score_text, score_rect)
-
-        def render_hp() -> None:
             hp_rect = rect.Rect(10, 10, HEALTH // 2, 40)
             draw.rect(App.SCREEN, (255, 255, 255), hp_rect)
 
         def mod_hp(hp: int, amount: int) -> int:
             hp += amount
             if hp > 1000:
-                hp = 1000
+                return 1000
             return hp
 
         HEALTH = 1000
@@ -142,7 +138,7 @@ class Game:
         held_keys = {}
 
         while INGAME:
-            load_tex_default()
+            load_tex_UI()
             Game.PASSED_TIME = App.DELTA_TIME() - Game.START_TIME
 
             # Move notes from LOADED to ACTIVE based on time
@@ -274,13 +270,13 @@ class Game:
                         note.remove(Game.ACTIVE)
                         note.add(Game.PASSED)
 
-            render_score()
-            render_hp()
+            render_ELEMENTS()
 
             Game.ACTIVE.update()
 
             for n in Game.PASSED:
                 n.kill()
+            Game.PASSED.empty()
 
             if HEALTH <= 0:
                 failscreen()
