@@ -108,6 +108,48 @@ class Game:
                 return 1000
             return hp
 
+        # implement a pause loop
+        def pause_loop() -> bool:
+            AudioWrapper.pause(AudioWrapper.song)
+            pause = True
+            quit = False
+            while pause:
+                App.SCREEN.fill((0, 0, 0))
+                pause_text = Game.FONT32.render("PAUSED", True, (255, 255, 255))
+                pause_rect = pause_text.get_rect(center=(960, 540))
+                App.SCREEN.blit(pause_text, pause_rect)
+                for event in pg.event.get():
+                    if event.type == pg.KEYDOWN:
+                        # if key pressed is esc: then break
+                        if event.key == pg.K_ESCAPE:
+                            AudioWrapper.stop(AudioWrapper.song)
+                            quit = True
+                            break
+                        else:
+                            pause = False
+                            render_ELEMENTS()
+                            pause_text = Game.FONT32.render("3", True, (255, 255, 255))
+                            App.SCREEN.blit(pause_text, pause_rect)
+                            display.flip()
+                            time.delay(1000)
+                            pause_text = Game.FONT32.render("2", True, (255, 255, 255))
+                            App.SCREEN.blit(pause_text, pause_rect)
+                            display.flip()
+                            time.delay(1000)
+                            pause_text = Game.FONT32.render("1", True, (255, 255, 255))
+                            App.SCREEN.blit(pause_text, pause_rect)
+                            time.delay(1000)
+                            display.flip()
+                            
+                display.flip()
+                App.CLOCK.tick_busy_loop(120)
+                if quit:
+                    break
+            else:
+                AudioWrapper.unpause(AudioWrapper.song)
+                return False
+            return True
+
         HEALTH = 1000
         SCORE = 0
         CLOCK = App.CLOCK
@@ -172,6 +214,9 @@ class Game:
                 for key, events in key_events_this_frame.items():
                     for event in events:
                         if event["event"] == pg.KEYDOWN:
+                            # if key is esc then pause
+                            if key == "escape":
+                                QUIT = pause_loop()
                             # Process each note in the active notes list
                             for note in Game.ACTIVE:
                                 if note in notes_hit_this_frame:
