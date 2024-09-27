@@ -115,7 +115,7 @@ class Game:
             quit = False
             while pause:
                 App.SCREEN.fill((0, 0, 0))
-                pause_text = Game.FONT32.render("PAUSED", True, (255, 255, 255))
+                pause_text = Game.FONT32.render("PAUSED - ESC TO QUIT, ANY KEY TO CONTINUE", True, (255, 255, 255))
                 pause_rect = pause_text.get_rect(center=(960, 540))
                 App.SCREEN.blit(pause_text, pause_rect)
                 for event in pg.event.get():
