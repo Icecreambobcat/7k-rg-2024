@@ -31,6 +31,7 @@ class Results:
         """
         False for normal true for retry
         """
+
         RESULTS = True
         CLOCK = App.CLOCK
         while RESULTS:

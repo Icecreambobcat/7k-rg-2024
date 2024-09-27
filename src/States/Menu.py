@@ -30,6 +30,10 @@ class Menu:
         """
         Return true to quit
         """
+
+        def render_ui() -> None:
+            pass
+
         MENU = True
         CLOCK = App.CLOCK
         while MENU:
