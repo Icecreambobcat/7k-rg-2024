@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+from ..App.parser import Parser
 from ..App.App import App
 from ..App.Conf import Conf
 import pygame as pg
@@ -16,18 +18,19 @@ class Menu:
 
     @staticmethod
     def menu_loop() -> bool:
+        App.LEVELS = Parser.level_load()
         """
         Return true to quit
         """
 
         bg = image.load(Conf.MENU_BG)
         bg = transform.scale(bg, (1920, 1080))
-        welcome_text = App.FONT32.render("Welcome to my game!", True, (255, 255, 255))
+        welcome_text = App.FONT72.render("Welcome to my game!", True, (255, 255, 255))
         rect_line1 = welcome_text.get_rect(center=(960, 500))
         welcome_line2 = App.FONT24.render(
             "Press enter to start, press esc to quit.", True, (255, 255, 255)
         )
-        rect_line2 = welcome_line2.get_rect(center=(960, 570))
+        rect_line2 = welcome_line2.get_rect(center=(960, 600))
 
         def render_ui() -> None:
             App.SCREEN.blit(bg, (0, 0))

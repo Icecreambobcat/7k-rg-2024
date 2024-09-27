@@ -11,16 +11,7 @@ class Conf:
 
     # Fixed configs for the app
     # These may be overridden in future when saves are implemented
-    VERSION = "0.1.0 Dev"
-    KEYS = {
-        "lane0": "s",
-        "lane1": "d",
-        "lane2": "f",
-        "lane3": " ",
-        "lane4": "j",
-        "lane5": "k",
-        "lane6": "l",
-    }
+    VERSION = "1.0.0 Alpha"
     SCREEN_SIZE: tuple = (1920, 1080)
 
     # FWIW it's just better to hard path every image and asset rather than try to use an auto parser

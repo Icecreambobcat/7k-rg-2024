@@ -1,5 +1,6 @@
 from __future__ import annotations
 from abc import abstractmethod
+from collections.abc import Callable
 from pathlib import Path
 
 from ..App.App import Object, App
@@ -30,13 +31,9 @@ class Game:
     """
     for some reason my type checker really doesn't like pulling fonts from app so here they are
     """
-    FONT32 = font.Font(Conf.FONT_TEX, 32)
-    FONT24 = font.Font(Conf.FONT_TEX, 24)
-    FONT12 = font.Font(Conf.FONT_TEX, 12)
-
-    START_TIME: int
-    PASSED_TIME: int
-    PAUSE_TIME: int
+    START_TIME: int = 0
+    PASSED_TIME: Callable[[], int]
+    PAUSE_TIME: int = 0
 
     LOADED = sprite.Group()
     # All note sprites are first loaded into this group
@@ -48,6 +45,10 @@ class Game:
 
     MULTIPLIER = Conf.MULTIPLIER
     CONSTANT = Conf.CONSTANT
+
+    @staticmethod
+    def PASSED_TIME() -> int:
+        return time.get_ticks() - Game.START_TIME - Game.PAUSE_TIME
 
     @staticmethod
     def ingame_loop(level: Level_FILE) -> bool:
@@ -87,8 +88,8 @@ class Game:
                 App.SCREEN.fill((0, 0, 0))
                 App.SCREEN.blit(bg, (0, 0))
                 App.SCREEN.blit(line, line_rect)
-                failtext = Game.FONT32.render("FAILED!", True, (255, 0, 0))
-                failprompt = Game.FONT24.render(
+                failtext = App.FONT32.render("FAILED!", True, (255, 0, 0))
+                failprompt = App.FONT24.render(
                     "Press enter to return to song select", True, (255, 255, 255)
                 )
                 failrect = failtext.get_rect(center=(960, 540))
@@ -109,7 +110,7 @@ class Game:
             App.SCREEN.blit(line, line_rect)
 
         def render_ELEMENTS() -> None:
-            score_text = Game.FONT32.render(f"{SCORE}", True, (255, 255, 255))
+            score_text = App.FONT32.render(f"{SCORE}", True, (255, 255, 255))
             score_rect = score_text.get_rect(topright=(1920 - 10, 10))
             hp_rect = rect.Rect(10, 10, HEALTH // 2, 40)
             draw.rect(App.SCREEN, (255, 255, 255), hp_rect)
@@ -133,7 +134,7 @@ class Game:
             quit = False
             while pause:
                 App.SCREEN.fill((0, 0, 0))
-                pause_text = Game.FONT32.render(
+                pause_text = App.FONT32.render(
                     "PAUSED - ESC TO QUIT, ANY KEY TO CONTINUE", True, (255, 255, 255)
                 )
                 pause_rect = pause_text.get_rect(center=(960, 540))
@@ -148,17 +149,17 @@ class Game:
                         else:
                             pause = False
                             App.SCREEN.fill((0, 0, 0))
-                            pause_text = Game.FONT32.render("3", True, (255, 255, 255))
+                            pause_text = App.FONT32.render("3", True, (255, 255, 255))
                             App.SCREEN.blit(pause_text, pause_rect)
                             display.flip()
                             time.delay(1000)
                             App.SCREEN.fill((0, 0, 0))
-                            pause_text = Game.FONT32.render("2", True, (255, 255, 255))
+                            pause_text = App.FONT32.render("2", True, (255, 255, 255))
                             App.SCREEN.blit(pause_text, pause_rect)
                             display.flip()
                             time.delay(1000)
                             App.SCREEN.fill((0, 0, 0))
-                            pause_text = Game.FONT32.render("1", True, (255, 255, 255))
+                            pause_text = App.FONT32.render("1", True, (255, 255, 255))
                             App.SCREEN.blit(pause_text, pause_rect)
                             render_ELEMENTS()
                             display.flip()
@@ -190,7 +191,6 @@ class Game:
         time.delay(2000)
 
         Game.START_TIME = App.DELTA_TIME()  # Call right before loop for accuracy
-        Game.PASSED_TIME = Game.START_TIME
 
         AudioWrapper.play(SONG, AudioWrapper.song)
         INGAME = True
@@ -200,29 +200,36 @@ class Game:
             "s": [],
             "d": [],
             "f": [],
-            " ": [],
+            "space": [],
             "j": [],
             "k": [],
             "l": [],
         }
 
         # Dictionary to track currently held keys for long notes
-        held_keys = {}
         already_paused = False
         Game.PAUSE_TIME = 0
 
         while INGAME:
+            key_events_this_frame: dict[str, list[dict]] = {
+                "s": [],
+                "d": [],
+                "f": [],
+                "space": [],
+                "j": [],
+                "k": [],
+                "l": [],
+            }
             load_tex_UI()
             render_ELEMENTS()
-            Game.ACTIVE.update()
-
-            Game.PASSED_TIME = App.DELTA_TIME() - Game.START_TIME - Game.PAUSE_TIME
 
             # Move notes from LOADED to ACTIVE based on time
             for sp in Game.LOADED:
-                if sp.hit_time >= Game.PASSED_TIME - 500:
+                if sp.hit_time >= Game.PASSED_TIME() - 500:
                     sp.remove(Game.LOADED)
                     sp.add(Game.ACTIVE)
+
+            Game.ACTIVE.update()
 
             for event in pg.event.get([pg.KEYDOWN, pg.KEYUP, pg.QUIT]):
                 if event.type == pg.QUIT:
@@ -231,9 +238,10 @@ class Game:
                     event.key == pg.K_ESCAPE and already_paused == False
                 ):  # Pause handling
                     already_paused = True
+                    pre_pause_time = Game.PASSED_TIME()
                     QUIT_LEVEL = pause_loop()
                     Game.PAUSE_TIME = (
-                        App.DELTA_TIME() - Game.START_TIME - Game.PAUSE_TIME
+                        Game.PASSED_TIME() - pre_pause_time + Game.PAUSE_TIME
                     )
                     continue
                 elif App.AUTO:
@@ -243,48 +251,32 @@ class Game:
                     key_name = pg.key.name(event.key)
                     if key_name in key_events_this_frame:
                         key_events_this_frame[key_name].append(
-                            {
-                                "event": "down",
-                                "time": App.DELTA_TIME() - Game.START_TIME,
-                            }
+                            {"event": "down", "time": Game.PASSED_TIME()}
                         )
                 elif event.type == pg.KEYUP:
+                    already_paused = False
                     key_name = pg.key.name(event.key)
                     if key_name in key_events_this_frame:
                         key_events_this_frame[key_name].append(
                             {
                                 "event": "up",
-                                "time": App.DELTA_TIME() - Game.START_TIME,
+                                "time": Game.PASSED_TIME(),
                             }
                         )
+                time.delay(1)
 
-                if not App.AUTO:
-                    # Handle missed notes
-                    for note in Game.ACTIVE:
-                        if note.hit_time <= Game.PASSED_TIME - Conf.HIT_WINDOWS["miss"]:
-                            SCORE += Conf.SCORING["miss"]
-                            HEALTH = mod_hp(HEALTH, -80)
-                            note.remove(Game.ACTIVE)
-                            note.add(Game.PASSED)
-                    notes_hit_this_frame = set()
-
-                    # Process each key event this frame
-                    for key, events in key_events_this_frame.items():
-                        for event in events:
-                            if event["event"] == "down":
-                                for note in Game.ACTIVE:
-                                    if note in notes_hit_this_frame:
-                                        continue
-
-                                    if (
-                                        note.hit_time - event["time"]
-                                    ) >= Conf.HIT_WINDOWS["miss"]:
-                                        continue
-
+            if App.AUTO == False:
+                for key, events in key_events_this_frame.items():
+                    for event in events:
+                        if event["event"] == "down":
+                            for note in Game.ACTIVE:
+                                if (
+                                    note not in Game.HEAD_HIT
+                                    and note.type == "LongNote"
+                                ):
                                     if note.required_key == key:
                                         diff_time = abs(note.hit_time - event["time"])
                                         if diff_time <= Conf.HIT_WINDOWS["miss"]:
-                                            # Process the hit based on timing
                                             if (
                                                 diff_time
                                                 <= Conf.HIT_WINDOWS["plusperfect"]
@@ -305,22 +297,36 @@ class Game:
                                             else:
                                                 SCORE += Conf.SCORING["miss"]
                                                 HEALTH = mod_hp(HEALTH, -80)
+                                            note.add(
+                                                Game.HEAD_HIT
+                                            )  # Mark the long note's head as hit
 
-                                            # Long note handling
-                                            if note.type == "LongNote":
-                                                held_keys[key] = {
-                                                    "note": note,
-                                                    "start_time": Game.PASSED_TIME,
-                                                }
-                                            else:
-                                                note.remove(Game.ACTIVE)
-                                                note.add(Game.PASSED)
-                                            notes_hit_this_frame.add(note)
-                                            break
+                                elif note.required_key == key:
+                                    diff_time = abs(note.hit_time - event["time"])
+                                    if diff_time <= Conf.HIT_WINDOWS["miss"]:
+                                        if diff_time <= Conf.HIT_WINDOWS["plusperfect"]:
+                                            SCORE += Conf.SCORING["plusperfect"]
+                                            HEALTH = mod_hp(HEALTH, 5)
+                                        elif diff_time <= Conf.HIT_WINDOWS["perfect"]:
+                                            SCORE += Conf.SCORING["perfect"]
+                                            HEALTH = mod_hp(HEALTH, 3)
+                                        elif diff_time <= Conf.HIT_WINDOWS["great"]:
+                                            SCORE += Conf.SCORING["great"]
+                                            HEALTH = mod_hp(HEALTH, 1)
+                                        elif diff_time <= Conf.HIT_WINDOWS["good"]:
+                                            SCORE += Conf.SCORING["good"]
+                                            HEALTH = mod_hp(HEALTH, 0)
+                                        else:
+                                            SCORE += Conf.SCORING["miss"]
+                                            HEALTH = mod_hp(HEALTH, -80)
 
-                            elif event["event"] == "up":
-                                if key in held_keys:
-                                    note = held_keys[key]["note"]
+                                        note.remove(Game.ACTIVE)
+                                        note.add(Game.PASSED)
+
+                        # On KEYUP: process the end of the long note
+                        elif event["event"] == "up":
+                            for note in Game.HEAD_HIT:
+                                if key == note.required_key and note.type == "LongNote":
                                     diff_time = abs(note.endtime - event["time"])
                                     if diff_time <= Conf.HIT_WINDOWS["miss"]:
                                         if diff_time <= Conf.HIT_WINDOWS["plusperfect"]:
@@ -334,29 +340,39 @@ class Game:
                                             HEALTH = mod_hp(HEALTH, 1)
                                         elif diff_time <= Conf.HIT_WINDOWS["good"]:
                                             SCORE += Conf.SCORING["good"]
-                                        HEALTH = mod_hp(HEALTH, 0)
+                                            HEALTH = mod_hp(HEALTH, 0)
                                     else:
                                         SCORE += Conf.SCORING["miss"]
                                         HEALTH = mod_hp(HEALTH, -80)
 
+                                    # Remove the note from active play
                                     note.remove(Game.ACTIVE)
+                                    note.remove(Game.HEAD_HIT)
                                     note.add(Game.PASSED)
-                                    del held_keys[key]
+
+                for sp in Game.ACTIVE:
+                    if sp.type == "TapNote" and sp.hit_time <= (
+                        Game.PASSED_TIME() - Conf.HIT_WINDOWS["miss"]
+                    ):
+                        SCORE += Conf.SCORING["miss"]
+                        HEALTH = mod_hp(HEALTH, -80)
+                        sp.remove(Game.ACTIVE)
+                        sp.add(Game.PASSED)
 
             else:  # Auto-play logic
                 for note in Game.ACTIVE:
                     if note.type == "TapNote":
-                        if note.hit_time <= Game.PASSED_TIME - 10:
+                        if note.hit_time <= Game.PASSED_TIME() - 10:
                             SCORE += Conf.SCORING["plusperfect"]
                             note.remove(Game.ACTIVE)
                             note.add(Game.PASSED)
                     elif (
-                        note.hit_time <= Game.PASSED_TIME - 10
+                        note.hit_time <= Game.PASSED_TIME() - 10
                         and note not in Game.HEAD_HIT
                     ):
                         SCORE += Conf.SCORING["plusperfect"]
                         note.add(Game.HEAD_HIT)
-                    elif note.endtime <= Game.PASSED_TIME - 10:
+                    elif note.endtime <= Game.PASSED_TIME() - 10:
                         SCORE += Conf.SCORING["plusperfect"]
                         note.remove(Game.HEAD_HIT)
                         note.remove(Game.ACTIVE)
@@ -438,12 +454,12 @@ class Note(Object):
         pass
 
     @property
-    def required_key(self) -> str:
+    def required_key(self):
         table = {
             0: "s",
             1: "d",
             2: "f",
-            3: " ",
+            3: "space",
             4: "j",
             5: "k",
             6: "l",
@@ -472,7 +488,7 @@ class Note(Object):
         return Note._white_tex if self.lane in [0, 2, 4, 6] else Note._blue_tex
 
     def calc_pos(self) -> int:
-        out = (Game.PASSED_TIME - self.hit_time) * Game.MULTIPLIER + Game.CONSTANT
+        out = (Game.PASSED_TIME() - self.hit_time) * Game.MULTIPLIER + Game.CONSTANT
         return int(out)
 
 

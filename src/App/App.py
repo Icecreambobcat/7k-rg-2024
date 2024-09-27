@@ -29,13 +29,11 @@ class App:
     """
 
     LEVELS: dict[list[str], Level_FILE]
-    LOGFILE: Path
     CLOCK: time.Clock
     DELTA_TIME: Callable[[], int]
     DELTA_TIME = time.get_ticks
     # it's really stupid to have one callable among other constants but oh well
     # it's the cleanest way that remains type safe
-    LOG: bool
     SCREEN: Surface
     STATE: str
     """
@@ -44,13 +42,14 @@ class App:
     """
     CURRENT_LEVEL: Level_FILE
     AUTO: bool
+    FONT72: font.Font
     FONT32: font.Font
     FONT24: font.Font
     FONT12: font.Font
     RECENTSCORE: int = 0
 
     @staticmethod
-    def init_game(log: bool) -> None:
+    def init_game() -> None:
         from .Conf import Conf
 
         """
@@ -59,13 +58,12 @@ class App:
 
         pg.init()
         App.LEVELS = Parser.level_load()
-        App.LOGFILE = Path(Lib.PROJECT_ROOT, "STO", "LOG", "log")
         App.CLOCK = time.Clock()
-        App.LOG = log
         App.SCREEN = display.set_mode(size=(Conf.SCREEN_SIZE[0], Conf.SCREEN_SIZE[1]))
-        display.set_caption("7/4k rg 0.1.0")
+        display.set_caption("7k rg 1.0.0")
         App.STATE = "Menu"
         App.AUTO = False
+        App.FONT72 = font.Font(Conf.FONT_TEX, 72)
         App.FONT32 = font.Font(Conf.FONT_TEX, 32)
         App.FONT24 = font.Font(Conf.FONT_TEX, 24)
         App.FONT12 = font.Font(Conf.FONT_TEX, 12)
