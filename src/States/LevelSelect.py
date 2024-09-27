@@ -1,13 +1,27 @@
 from __future__ import annotations
+from App.App import App, Object, AudioWrapper
 import pygame as pg
 from pygame import (
     Rect,
+    font,
+    mixer,
+    surface,
+    time,
     display,
+    key,
     image,
+    mouse,
+    Surface,
     sprite,
     transform,
 )
-from ..shared import App, Level_FILE, Lib, Conf, Object
+from typing import (
+    Any,
+)
+
+from ..App.Conf import Conf
+from ..App.lib import Lib
+from Game import Level_FILE
 
 
 class LevelSelect:

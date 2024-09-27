@@ -1,7 +1,7 @@
 from __future__ import annotations
 from pathlib import Path
 # from pickle import dump, load
-from ..shared import Lib
+from .lib import Lib
 
 
 class Conf:
