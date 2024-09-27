@@ -14,6 +14,9 @@ A 4k rhythm game built in python for school
 
 ## How to run
 
+- MANDATORY:
+  - YOUR SCREEN MUST BE AT LEAST 1920x1080
+  - You can turn up your resolution in your system settings temporarily for this game
 - It's suggested that you run the game in a venv
   - `pip3 install venv`
     - `python3 -m venv venv`
