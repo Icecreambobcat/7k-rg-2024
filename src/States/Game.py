@@ -61,10 +61,12 @@ class Game:
         True - fail OR quit: skip results screen and play fail graphic if fail.
         """
 
-        bg = image.load(Conf.BG_TEX)
+        bg = image.load(Conf.INGAME_BG)
         bg = transform.scale(bg, (1920, 1080))
         line = image.load(Conf.JUDGEMENT_LINE)
         line = transform.scale(line, (1400, 20))
+        line_rect = line.get_rect(center=(960, 1000))
+        cover_rect = Rect(260, 0, 1400, 1080)
 
         App.RECENTSCORE = 0
         QUIT_LEVEL = False
@@ -87,7 +89,7 @@ class Game:
 
         def failscreen() -> None:
             """Display the fail graphic upon failure."""
-            
+
             fail = True
             AudioWrapper.fadeout(1000, AudioWrapper.song)
 
@@ -101,9 +103,11 @@ class Game:
             while fail:
                 App.SCREEN.fill((0, 0, 0))
                 App.SCREEN.blit(bg, (0, 0))
-                App.SCREEN.blit(line, Conf.LINECOORDS)
+                App.SCREEN.blit(line, line_rect)
                 failtext = Game.FONT32.render("FAILED!", True, (255, 0, 0))
-                failprompt = Game.FONT12.render("Press any key to return to song select", True, (255, 255, 255))
+                failprompt = Game.FONT12.render(
+                    "Press any key to return to song select", True, (255, 255, 255)
+                )
                 failrect = failtext.get_rect(center=(960, 540))
                 promptrect = failprompt.get_rect(center=(960, 580))
                 App.SCREEN.blits([(failtext, failrect), (failprompt, promptrect)])
@@ -117,7 +121,8 @@ class Game:
         def load_tex_UI() -> None:
             """loads UI elememnts"""
             App.SCREEN.blit(bg, (0, 0))
-            App.SCREEN.blit(line, Conf.LINECOORDS)
+            draw.rect(App.SCREEN, (0, 0, 0), cover_rect)
+            App.SCREEN.blit(line, line_rect)
 
         def render_ELEMENTS() -> None:
             score_text = Game.FONT32.render(f"{SCORE}", True, (255, 255, 255))
@@ -250,7 +255,7 @@ class Game:
                                 if note in notes_hit_this_frame:
                                     continue  # Skip notes that were already hit in this frame
 
-                                hit_time = Game.PASSED_TIME - note.time
+                                hit_time = Game.PASSED_TIME - note.hit_time
                                 if hit_time > Conf.HIT_WINDOWS["miss"]:
                                     continue
 
@@ -298,7 +303,7 @@ class Game:
                                 note = held_note_info["note"]
 
                                 # Check if key is released within the long note's release window
-                                hit_window = abs(Game.PASSED_TIME - note.end_time)
+                                hit_window = abs(Game.PASSED_TIME - note.endtime)
                                 if hit_window <= Conf.HIT_WINDOWS["miss"]:
                                     if hit_window <= Conf.HIT_WINDOWS["plusperfect"]:
                                         SCORE += Conf.SCORING["plusperfect"]
@@ -330,7 +335,7 @@ class Game:
 
                 # Handle notes that weren't hit and are now too late
                 for note in Game.ACTIVE:
-                    if note.time <= Game.PASSED_TIME - Conf.HIT_WINDOWS["miss"]:
+                    if note.hit_time <= Game.PASSED_TIME - Conf.HIT_WINDOWS["miss"]:
                         SCORE += Conf.SCORING["miss"]
                         HEALTH = mod_hp(HEALTH, -10)
                         note.remove(Game.ACTIVE)
@@ -338,7 +343,13 @@ class Game:
 
             else:  # Auto-play logic
                 for note in Game.ACTIVE:
-                    if note.time <= Game.PASSED_TIME - 10:
+                    if note.type is TapNote and note.hit_time <= Game.PASSED_TIME - 10:
+                        SCORE += Conf.SCORING["plusperfect"]
+                        note.remove(Game.ACTIVE)
+                        note.add(Game.PASSED)
+                    elif note.hit_time <= Game.PASSED_TIME - 10:
+                        SCORE += Conf.SCORING["plusperfect"]
+                    elif note.endtime <= Game.PASSED_TIME - 10:
                         SCORE += Conf.SCORING["plusperfect"]
                         note.remove(Game.ACTIVE)
                         note.add(Game.PASSED)
@@ -410,7 +421,12 @@ class Note(Object):
 
     @property
     @abstractmethod
-    def time(self) -> int:
+    def type(self) -> object:
+        pass
+
+    @property
+    @abstractmethod
+    def hit_time(self) -> int:
         pass
 
     @property
@@ -447,7 +463,7 @@ class Note(Object):
         return Note._white_tex if self.lane in [0, 2, 4, 6] else Note._blue_tex
 
     def calc_pos(self) -> int:
-        out = (self.time - Game.PASSED_TIME) * Conf.MULTIPLIER + Conf.CONSTANT
+        out = (self.hit_time - Game.PASSED_TIME) * Conf.MULTIPLIER + Conf.CONSTANT
         return int(out)
 
 
@@ -465,11 +481,15 @@ class TapNote(Note):
         App.SCREEN.blit(self.image, self.position)
 
     @property
+    def type(self):
+        return TapNote
+
+    @property
     def position(self) -> tuple[int, int]:
         return (self.lane, self.calc_pos())
 
     @property
-    def time(self) -> int:
+    def hit_time(self) -> int:
         return self._time
 
     @property
@@ -501,11 +521,15 @@ class LongNote(Note):
         return int(out)
 
     @property
+    def type(self):
+        return LongNote
+
+    @property
     def position(self) -> tuple[int, int]:
         return (self.lane, self.calc_pos())
 
     @property
-    def time(self) -> int:
+    def hit_time(self) -> int:
         return self._time
 
     @property

@@ -9,10 +9,8 @@ class Conf:
     Handles fixed methods and values passed to the app at runtime
     """
 
-    """
-    Fixed configs for the app
-    These may be overridden in future when saves are implemented
-    """
+    # Fixed configs for the app
+    # These may be overridden in future when saves are implemented
     VERSION = "0.1.0 Dev"
     KEYS = {
         "lane0": "s",
@@ -24,16 +22,15 @@ class Conf:
         "lane6": "l",
     }
     SCREEN_SIZE: tuple = (1920, 1080)
-    LINECOORDS = (210, 50)
 
-    """
-    FWIW it's just better to hard path every image and asset rather than try to use an auto parser
-    """
+    # FWIW it's just better to hard path every image and asset rather than try to use an auto parser
+    MENU_BG = Path(Lib.PROJECT_ROOT, "Assets", "Images", "MENU_BG.jpg")
     LEVELSELECT_BG = Path(Lib.PROJECT_ROOT, "Assets", "Images", "LEVELSELECT_BG.jpg")
+    RESULTS_BG = Path(Lib.PROJECT_ROOT, "Assets", "Images", "RESULTS_BG.jpg")
     FONT_TEX = Path(
         Lib.PROJECT_ROOT, "Assets", "Fonts", "JetBrainsMonoNerdFont-Regular.ttf"
     )
-    BG_TEX = Path(Lib.PROJECT_ROOT, "Assets", "Images", "RG_BG.jpg")
+    INGAME_BG = Path(Lib.PROJECT_ROOT, "Assets", "Images", "RG_BG.jpg")
     JUDGEMENT_LINE = Path(Lib.PROJECT_ROOT, "Assets", "Images", "judgement_line.png")
     NOTE_TEX_BLUE = Path(Lib.PROJECT_ROOT, "Assets", "Images", "blue_note_tex.png")
     NOTE_TEX_WHITE = Path(Lib.PROJECT_ROOT, "Assets", "Images", "white_note_tex.png")
@@ -42,11 +39,9 @@ class Conf:
     # change file formats as necessary
     # however default textures are shipped with the game
 
-    """
-    These two handle scroll velocity
-    """
-    CONSTANT = 800
-    MULTIPLIER = 0.5
+    # These two handle scroll velocity
+    CONSTANT = 1000
+    MULTIPLIER = 0.8
 
     HIT_WINDOWS = {
         "plusperfect": 30,
@@ -63,22 +58,22 @@ class Conf:
         "good": 50,
         "miss": 0,
     }
-
-    """
-    Yet to be implemented
-    """
-    RUNTIME_CONF = None
-
-    @staticmethod
-    def loadConf():
-        """Placeholder for future implementation"""
-        confs = Path(Lib.PROJECT_ROOT, "STO", "conf.bin")
-        with confs.open("rb") as f:
-            Conf.RUNTIME_CONF = load(f)
-
-    @staticmethod
-    def saveConf():
-        """Placeholder for future implementation"""
-        confs = Path(Lib.PROJECT_ROOT, "STO", "conf.bin")
-        with confs.open("wb") as f:
-            dump(Conf.RUNTIME_CONF, f)
+    #
+    # """
+    # Yet to be implemented
+    # """
+    # RUNTIME_CONF = None
+    #
+    # @staticmethod
+    # def loadConf():
+    #     """Placeholder for future implementation"""
+    #     confs = Path(Lib.PROJECT_ROOT, "STO", "conf.bin")
+    #     with confs.open("rb") as f:
+    #         Conf.RUNTIME_CONF = load(f)
+    #
+    # @staticmethod
+    # def saveConf():
+    #     """Placeholder for future implementation"""
+    #     confs = Path(Lib.PROJECT_ROOT, "STO", "conf.bin")
+    #     with confs.open("wb") as f:
+    #         dump(Conf.RUNTIME_CONF, f)

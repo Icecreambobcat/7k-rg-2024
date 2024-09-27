@@ -36,7 +36,6 @@ class LevelSelect:
         """
         return true to go back to the main menu
         """
-        selected: str = ""
         BG = image.load(Conf.LEVELSELECT_BG)
         BG = transform.scale(BG, (1920, 1080))
         QUIT = False
