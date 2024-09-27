@@ -10,8 +10,10 @@ from pygame import (
     KEYDOWN,
     KEYUP,
     Rect,
+    draw,
     font,
     mixer,
+    rect,
     time,
     display,
     event,
@@ -36,12 +38,6 @@ class Game:
     Container for ingame behaviour
     """
 
-    miss = event.custom_type()
-    good = event.custom_type()
-    great = event.custom_type()
-    perfect = event.custom_type()
-    plusperfect = event.custom_type()
-
     """
     for some reason my type checker really doesn't like pulling fonts from app so here they are
     """
@@ -52,8 +48,6 @@ class Game:
     START_TIME: int
     PASSED_TIME: int
 
-    STATIC = sprite.Group()
-    # Everything non rhythm game related that's still loaded
     LOADED = sprite.Group()
     # All note sprites are first loaded into this group
     ACTIVE = sprite.Group()
@@ -97,8 +91,8 @@ class Game:
             App.SCREEN.blit(bg, (0, 0))
             App.SCREEN.blit(line, Conf.LINECOORDS)
 
-        def render_score(screen: Surface, score: int) -> None:
-            score_text = Game.FONT32.render(f"{score}", True, (255, 255, 255))
+        def render_score() -> None:
+            score_text = Game.FONT32.render(f"{SCORE}", True, (255, 255, 255))
 
             # Position the score text aligned to the top-right
             score_rect = score_text.get_rect(
@@ -106,7 +100,17 @@ class Game:
             )  # 10px padding from the edge
 
             # Draw the score onto the screen
-            screen.blit(score_text, score_rect)
+            App.SCREEN.blit(score_text, score_rect)
+
+        def render_hp() -> None:
+            hp_rect = rect.Rect(10, 10, HEALTH // 2, 40)
+            draw.rect(App.SCREEN, (255, 255, 255), hp_rect)
+
+        def mod_hp(hp: int, amount: int) -> int:
+            hp += amount
+            if hp > 1000:
+                hp = 1000
+            return hp
 
         HEALTH = 1000
         SCORE = 0
@@ -194,20 +198,24 @@ class Game:
                                             "start_time": Game.PASSED_TIME,
                                         }
                                     else:
-                                        # Short note: Check timing window and post appropriate event
                                         if (
                                             hit_window
                                             <= Conf.HIT_WINDOWS["plusperfect"]
                                         ):
                                             SCORE += Conf.SCORING["plusperfect"]
+                                            HEALTH = mod_hp(HEALTH, 5)
                                         elif hit_window <= Conf.HIT_WINDOWS["perfect"]:
                                             SCORE += Conf.SCORING["perfect"]
+                                            HEALTH = mod_hp(HEALTH, 3)
                                         elif hit_window <= Conf.HIT_WINDOWS["great"]:
                                             SCORE += Conf.SCORING["great"]
+                                            HEALTH = mod_hp(HEALTH, 1)
                                         elif hit_window <= Conf.HIT_WINDOWS["good"]:
                                             SCORE += Conf.SCORING["good"]
+                                            HEALTH = mod_hp(HEALTH, 0)
                                         else:
                                             SCORE += Conf.SCORING["miss"]
+                                            HEALTH = mod_hp(HEALTH, -10)
 
                                         note.remove(Game.ACTIVE)
                                         note.add(Game.PASSED)
@@ -225,20 +233,26 @@ class Game:
                                 if hit_window <= Conf.HIT_WINDOWS["miss"]:
                                     if hit_window <= Conf.HIT_WINDOWS["plusperfect"]:
                                         SCORE += Conf.SCORING["plusperfect"]
+                                        HEALTH = mod_hp(HEALTH, 5)
                                     elif hit_window <= Conf.HIT_WINDOWS["perfect"]:
                                         SCORE += Conf.SCORING["perfect"]
+                                        HEALTH = mod_hp(HEALTH, 3)
                                     elif hit_window <= Conf.HIT_WINDOWS["great"]:
                                         SCORE += Conf.SCORING["great"]
+                                        HEALTH = mod_hp(HEALTH, 1)
                                     elif hit_window <= Conf.HIT_WINDOWS["good"]:
                                         SCORE += Conf.SCORING["good"]
+                                        HEALTH = mod_hp(HEALTH, 0)
                                     else:
                                         SCORE += Conf.SCORING["miss"]
+                                        HEALTH = mod_hp(HEALTH, -10)
 
                                     note.remove(Game.ACTIVE)
                                     note.add(Game.PASSED)
                                 else:
                                     # Penalize for releasing too early or too late
                                     SCORE += Conf.SCORING["miss"]
+                                    HEALTH = mod_hp(HEALTH, -10)
                                     note.remove(Game.ACTIVE)
                                     note.add(Game.PASSED)
 
@@ -249,6 +263,7 @@ class Game:
                 for note in Game.ACTIVE:
                     if note.time <= Game.PASSED_TIME - Conf.HIT_WINDOWS["miss"]:
                         SCORE += Conf.SCORING["miss"]
+                        HEALTH = mod_hp(HEALTH, -10)
                         note.remove(Game.ACTIVE)
                         note.add(Game.PASSED)
 
@@ -259,11 +274,13 @@ class Game:
                         note.remove(Game.ACTIVE)
                         note.add(Game.PASSED)
 
-            for n in Game.PASSED:
-                n.kill()
+            render_score()
+            render_hp()
 
             Game.ACTIVE.update()
-            CLOCK.tick_busy_loop(120)
+
+            for n in Game.PASSED:
+                n.kill()
 
             if HEALTH <= 0:
                 failscreen()
@@ -272,6 +289,8 @@ class Game:
                 break
             elif len(Game.ACTIVE) == 0:
                 INGAME = False
+
+            CLOCK.tick_busy_loop(120)
 
         else:
             return False

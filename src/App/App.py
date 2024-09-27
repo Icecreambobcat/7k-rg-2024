@@ -57,7 +57,6 @@ class App:
     """
     CURRENT_LEVEL: Level_FILE
     AUTO: bool
-    IMAGES: dict[str, list[Path | None]]
     FONT32 = font.Font
     FONT24 = font.Font
     FONT12 = font.Font
