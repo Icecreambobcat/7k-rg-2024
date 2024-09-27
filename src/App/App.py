@@ -192,27 +192,27 @@ class AudioWrapper:
 
     @staticmethod
     def play(sound: mixer.Sound, channel: mixer.Channel) -> None:
-        mixer.Channel.play(channel, sound)
+        channel.play(sound)
 
     @staticmethod
     def pause(channel: mixer.Channel) -> None:
-        mixer.Channel.pause(channel)
+        channel.pause()
 
     @staticmethod
     def unpause(channel: mixer.Channel) -> None:
-        mixer.Channel.unpause(channel)
+        channel.unpause()
 
     @staticmethod
     def stop(channel: mixer.Channel) -> None:
-        mixer.Channel.stop(channel)
+        channel.stop()
 
     @staticmethod
     def fadeout(fadeout_time: int, channel: mixer.Channel) -> None:
-        mixer.Channel.fadeout(channel, fadeout_time)
+        channel.fadeout(fadeout_time)
 
     @staticmethod
     def set_volume(channel: mixer.Channel, volume: int) -> None:
-        mixer.Channel.set_volume(channel, volume)
+        channel.set_volume(volume)
 
 
 class Object(ABC, sprite.Sprite):  # Base class for all onscreen objects
