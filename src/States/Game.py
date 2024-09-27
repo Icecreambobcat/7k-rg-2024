@@ -63,7 +63,7 @@ class Game:
         bg = transform.scale(bg, (1920, 1080))
         line = image.load(Conf.JUDGEMENT_LINE)
         line = transform.scale(line, (700, 20))
-        line_rect = line.get_rect(center=(960, 1000))
+        line_rect = line.get_rect(center=(950, 1000))
         cover_rect = Rect(600, 0, 700, 1080)
 
         App.RECENTSCORE = 0
