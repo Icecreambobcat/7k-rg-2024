@@ -1,5 +1,5 @@
 from __future__ import annotations
-from ..App.App import App, AudioWrapper
+from ..App.App import App
 from ..App.Conf import Conf
 import pygame as pg
 from pygame import (

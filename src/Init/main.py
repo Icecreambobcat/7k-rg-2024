@@ -1,14 +1,14 @@
 from pathlib import Path
 import sys
-from ..App.App import App
-from ..App.Conf import Conf
-
 from argparse import ArgumentParser
 import os
-from ..App.lib import Lib
 
 
 def main() -> None:
+    from ..App.lib import Lib
+    from ..App.App import App
+    from ..App.Conf import Conf
+
     log = False
 
     parser = ArgumentParser()

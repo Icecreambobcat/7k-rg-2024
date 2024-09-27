@@ -87,7 +87,7 @@ class Level_FILE:
                         General["Background"] = line[2].lstrip('"').rstrip('"')
 
                 elif section == "General":
-                    pair = line.replace(" ", "").split(":")
+                    pair = line.split(": ")
                     General[pair[0]] = pair[1]
 
                 elif section == "Metadata":

@@ -2,7 +2,7 @@ from __future__ import annotations
 from abc import abstractmethod
 from pathlib import Path
 
-from ..App.App import Object, App, AudioWrapper
+from ..App.App import Object, App
 from ..App.lib import Lib
 from ..App.Conf import Conf
 from ..App.parser import Level_FILE
@@ -15,19 +15,12 @@ from pygame import (
     rect,
     time,
     display,
-    key,
     image,
-    mouse,
     Surface,
     sprite,
     transform,
 )
-from typing import (
-    Any,
-    Never,
-)
 
-import threading
 from threading import Lock, Thread
 from queue import Queue
 
@@ -56,6 +49,8 @@ class Game:
 
     @staticmethod
     def ingame_loop(level: Level_FILE, auto: bool) -> bool:
+        from ..App.App import AudioWrapper
+
         """
         Provides multiple return states:
         False - pass.

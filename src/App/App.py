@@ -9,31 +9,19 @@ from typing import (
 
 from abc import ABC, abstractmethod  # Required for abstract classes
 
-import os
-
 import pygame as pg
 from pygame import (
-    Rect,
     font,
     mixer,
     rect,
     time,
     display,
-    key,
-    image,
-    mouse,
     Surface,
     sprite,
 )
 
 from .parser import Parser, Level_FILE
 from .lib import Lib
-from ..States.Menu import Menu
-from ..States.Game import Game
-from ..States.LevelSelect import LevelSelect
-from ..States.Results import Results
-
-from Conf import Conf
 
 
 class App:
@@ -57,14 +45,15 @@ class App:
     """
     CURRENT_LEVEL: Level_FILE
     AUTO: bool
-    FONT32 = font.Font(Conf.FONT_TEX, 32)
-    FONT24 = font.Font(Conf.FONT_TEX, 24)
-    FONT12 = font.Font(Conf.FONT_TEX, 12)
+    FONT32: font.Font
+    FONT24: font.Font
+    FONT12: font.Font
     RECENTSCORE: int = 0
-
 
     @staticmethod
     def init_game(log: bool) -> None:
+        from .Conf import Conf
+
         """
         init_game should be called first before calling run to set app variables
         """
@@ -80,9 +69,16 @@ class App:
         display.set_caption("7/4k rg 0.1.0")
         App.STATE = "Menu"
         App.AUTO = False
+        App.FONT32 = font.Font(Conf.FONT_TEX, 32)
+        App.FONT24 = font.Font(Conf.FONT_TEX, 24)
+        App.FONT12 = font.Font(Conf.FONT_TEX, 12)
 
     @staticmethod
     def run() -> Never:
+        from ..States.Menu import Menu
+        from ..States.Game import Game
+        from ..States.LevelSelect import LevelSelect
+        from ..States.Results import Results
         """
         Isolation from initialisation of values
         """

@@ -1,23 +1,10 @@
 from __future__ import annotations
-from App.App import App, Object, AudioWrapper
+from ..App.App import App
 import pygame as pg
 from pygame import (
-    Rect,
-    font,
-    mixer,
-    surface,
-    time,
     display,
-    event,
-    key,
     image,
-    mouse,
-    Surface,
-    sprite,
     transform,
-)
-from typing import (
-    Any,
 )
 
 from ..App.Conf import Conf
@@ -38,7 +25,9 @@ class Results:
         bg = transform.scale(bg, (1920, 1080))
         score = App.FONT32.render(f"Score: {App.RECENTSCORE}", True, (255, 255, 255))
         score_rect = score.get_rect(center=(960, 300))
-        prompt = App.FONT24.render("Press enter to continue, press space to retry", True, (255, 255, 255))
+        prompt = App.FONT24.render(
+            "Press enter to continue, press space to retry", True, (255, 255, 255)
+        )
         prompt_rect = prompt.get_rect(center=(960, 600))
 
         def update_ui() -> None:

@@ -5,10 +5,9 @@ from pathlib import Path
 
 class Lib:
     @staticmethod
-    def GET_ROOT() -> str:
-        cwd = os.getcwd()
-        root = os.path.join(cwd, "..", "..")
-        return root
+    def GET_ROOT() -> Path:
+        cwd = Path.cwd()
+        return cwd
 
     @staticmethod
     def GET_SONG_IMG(level) -> Path:

@@ -1,17 +1,10 @@
 from __future__ import annotations
-from App.App import App, Object, AudioWrapper
+from ..App.App import App, Object
 import pygame as pg
 from pygame import (
     Rect,
-    font,
-    mixer,
-    surface,
-    time,
     display,
-    key,
     image,
-    mouse,
-    Surface,
     sprite,
     transform,
 )
