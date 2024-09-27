@@ -9,12 +9,11 @@ class Parser:
     def level_load() -> dict[list[str], Level_FILE]:
         out = dict()
         dir = Path(Lib.PROJECT_ROOT, "Assets", "Levels")
-        for file in dir.iterdir():
-            for diff in file.iterdir():
-                if diff.name.endswith(".osu"):
-                    level = Level_FILE(diff)
-                    out[[level.meta["TitleUnicode"], level.meta["Version"]]] = level
+        for file in dir.rglob("*.osu"):
+            level = Level_FILE(file)
+            out[(level.meta["TitleUnicode"], level.meta["Version"])] = level
         return out
+
 
 class Level_FILE:
     @staticmethod
@@ -43,74 +42,28 @@ class Level_FILE:
             meta = level.readlines()
             section = ""
             for line in meta:
-                match line:
-                    case line if "[General]" in line:
-                        section = "General"
-                        continue
-
-                    case line if "[Metadata]" in line:
-                        section = "Metadata"
-                        continue
-
-                    case line if "[Difficulty]" in line:
-                        section = "Difficulty"
-                        continue
-
-                    case line if "[TimingPoints]" in line:
-                        section = "TimingPoints"
-                        continue
-
-                    case line if "[HitObjects]" in line:
-                        section = "HitObjects"
-                        continue
-
-                    case line if "[Editor]" in line:
-                        section = "Editor"
-                        continue
-
-                    case line if "[Events]" in line:
-                        section = "Events"
-                        continue
-
-                    case _:
-                        if line:
-                            pass
-                        else:
-                            section = ""
-                            continue
-
-                if section == "Editor":
+                if line.strip() == "":
+                    section = ""
                     continue
-
+                if line.startswith("["):
+                    section = line.strip()[1:-1]
+                    continue
+                if section == "General":
+                    pair = line.split(":", 1)
+                    out["G"][pair[0].strip()] = pair[1].strip()
+                elif section == "Metadata":
+                    pair = line.split(":", 1)
+                    out["M"][pair[0].strip()] = pair[1].strip()
+                elif section == "Difficulty":
+                    pair = line.split(":", 1)
+                    out["D"][pair[0].strip()] = pair[1].strip()
+                elif section == "TimingPoints":
+                    out["T"].append(line.split(","))
+                elif section == "HitObjects":
+                    out["H"].append(line.split(","))
                 elif section == "Events":
                     if not line.startswith("//"):
-                        General["Background"] = line[2].lstrip('"').rstrip('"')
-
-                elif section == "General":
-                    pair = line.split(": ")
-                    General[pair[0]] = pair[1]
-
-                elif section == "Metadata":
-                    pair = line.split(":")
-                    if pair[0] == "Tags":
-                        Metadata[pair[0]] = pair[1].split(" ")
-                        continue
-                    Metadata[pair[0]] = pair[1]
-
-                elif section == "Difficulty":
-                    pair = line.split(":")
-                    Difficulty[pair[0]] = pair[1]
-
-                elif section == "TimingPoints":
-                    point = line.split(",")
-                    TimingPoints.append(point)
-
-                elif section == "HitObjects":
-                    obj = line.split(",")
-                    HitObjects.append(obj)
-
-                else:
-                    pass
+                        out["G"]["Background"] = line.split(",")[2]
 
         return out
 

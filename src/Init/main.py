@@ -6,7 +6,7 @@ import os
 
 def main() -> None:
     from ..App.lib import Lib
-    from ..App.App import App
+    from ..App.App import App, AudioWrapper
     from ..App.Conf import Conf
 
     log = False
@@ -59,6 +59,7 @@ def main() -> None:
         sys.exit(0)
 
     App.init_game(log)
+    AudioWrapper.init_audio()
     App.run()
 
 

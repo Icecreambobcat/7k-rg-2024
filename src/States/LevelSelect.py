@@ -8,13 +8,10 @@ from pygame import (
     sprite,
     transform,
 )
-from typing import (
-    Any,
-)
 
 from ..App.Conf import Conf
 from ..App.lib import Lib
-from Game import Level_FILE
+from .Game import Level_FILE
 
 
 class LevelSelect:
@@ -26,12 +23,15 @@ class LevelSelect:
 
     @staticmethod
     def level_select_loop() -> bool:
+        from ..App.App import AudioWrapper
+        from .Game import Game
         """
         return true to go back to the main menu
         """
         BG = image.load(Conf.LEVELSELECT_BG)
         BG = transform.scale(BG, (1920, 1080))
         QUIT = False
+        PREVIEW = False
 
         SELECT = True
         CLOCK = App.CLOCK
@@ -52,17 +52,18 @@ class LevelSelect:
             for song in SONG_LIST:
                 if song.selected:
                     text = App.FONT24.render(
-                        f"> {song.level.info["TitleUnicode"]} | {song.level.meta["Version"]}",
+                        f"> {song.level.meta["TitleUnicode"]} | {song.level.meta["Version"]}",
                         True,
-                        (255, 255, 51),
+                        (255, 255, 255),
                     )
-                text = App.FONT24.render(
-                    f"  {song.level.info["TitleUnicode"]} | {song.level.meta["Version"]}",
-                    True,
-                    (255, 255, 255),
-                )
+                else:
+                    text = App.FONT24.render(
+                        f"  {song.level.meta["TitleUnicode"]} | {song.level.meta["Version"]}",
+                        True,
+                        (215, 215, 215),
+                    )
                 prompt = App.FONT32.render(
-                    "Select with the arrow keys, press enter to start. Toggle autoplay with space.",
+                    "Select with the arrow keys, press enter to start. Toggle autoplay with tab",
                     True,
                     (255, 255, 255),
                 )
@@ -71,28 +72,57 @@ class LevelSelect:
                     True,
                     (255, 155, 155),
                 )
-                App.SCREEN.blit(prompt, (400, 100))
-                App.SCREEN.blit(text, (400, row * 40 + 200))
-                App.SCREEN.blit(auto, (400, 150))
+                quitprompt = App.FONT24.render(
+                    "Press esc to quit, press space to toggle song.",
+                    True,
+                    (255, 255, 255),
+                )
+                App.SCREEN.blits(
+                    [
+                        (quitprompt, (700, 150)),
+                        (text, (400, row * 40 + 200)),
+                        (prompt, (300, 100)),
+                        (auto, (350, 150)),
+                    ]
+                )
                 row += 1
 
+        AudioWrapper.gameFX.set_volume(0.1)
         while SELECT:
             draw_ui()
-            for event in pg.event.get(pg.KEYDOWN):
-                if event.key == pg.K_RETURN:
-                    SELECT = False
-                elif event.key == pg.K_UP and index > 0:
-                    SONG_LIST[index].selected = False
-                    SONG_LIST[index - 1].selected = True
-                    index -= 1
-                elif event.key == pg.K_DOWN and index < len(SONG_LIST) - 1:
-                    SONG_LIST[index].selected = False
-                    SONG_LIST[index + 1].selected = True
-                    index += 1
-                elif event.key == pg.K_SPACE:
-                    App.AUTO = not App.AUTO
-                elif event.key == pg.K_ESCAPE:
-                    QUIT = True
+            for event in pg.event.get():
+                if event.type == pg.KEYDOWN:
+                    if event.key == pg.K_UP:
+                        index -= 1
+                        if index < 0:
+                            index = len(SONG_LIST) - 1
+                        SONG_LIST[index].selected = True
+                        for i, song in enumerate(SONG_LIST):
+                            if i != index:
+                                song.selected = False
+                    elif event.key == pg.K_DOWN:
+                        index += 1
+                        if index >= len(SONG_LIST):
+                            index = 0
+                        SONG_LIST[index].selected = True
+                        for i, song in enumerate(SONG_LIST):
+                            if i != index:
+                                song.selected = False
+                    elif event.key == pg.K_ESCAPE:
+                        QUIT = True
+                    elif event.key == pg.K_TAB:
+                        App.AUTO = not App.AUTO
+                    elif event.key == pg.K_RETURN:
+                        SELECT = False
+                    elif event.key == pg.K_SPACE:
+                        PREVIEW = not PREVIEW
+                        if PREVIEW:
+                            if AudioWrapper.gameFX.get_busy():
+                                pass
+                            else:
+                                AudioWrapper.gameFX.play(Game.get_audio(SONG_LIST[index].level))
+                        else:
+                            AudioWrapper.gameFX.fadeout(500)
 
             if QUIT:
                 break

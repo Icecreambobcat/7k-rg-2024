@@ -3,7 +3,6 @@ from collections.abc import Callable
 from pathlib import Path
 import sys
 from typing import (
-    Any,
     Never,
 )
 
@@ -63,9 +62,7 @@ class App:
         App.LOGFILE = Path(Lib.PROJECT_ROOT, "STO", "LOG", "log")
         App.CLOCK = time.Clock()
         App.LOG = log
-        App.SCREEN = display.set_mode(
-            size=(Conf.SCREEN_SIZE[0], Conf.SCREEN_SIZE[1]), flags=pg.FULLSCREEN
-        )
+        App.SCREEN = display.set_mode(size=(Conf.SCREEN_SIZE[0], Conf.SCREEN_SIZE[1]))
         display.set_caption("7/4k rg 0.1.0")
         App.STATE = "Menu"
         App.AUTO = False
@@ -79,6 +76,7 @@ class App:
         from ..States.Game import Game
         from ..States.LevelSelect import LevelSelect
         from ..States.Results import Results
+
         """
         Isolation from initialisation of values
         """
