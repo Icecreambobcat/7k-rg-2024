@@ -32,7 +32,7 @@ class Conf:
 
     # These two handle scroll velocity
     CONSTANT = 950
-    MULTIPLIER = 2.5
+    MULTIPLIER = 2.8
 
     HIT_WINDOWS = {
         "plusperfect": 30,

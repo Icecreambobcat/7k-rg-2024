@@ -224,7 +224,7 @@ class Game:
 
             # Move notes from LOADED to ACTIVE based on time
             for sp in Game.LOADED:
-                if sp.hit_time >= Game.PASSED_TIME() - 500:
+                if sp.hit_time >= Game.PASSED_TIME() - 400:
                     sp.remove(Game.LOADED)
                     sp.add(Game.ACTIVE)
 
