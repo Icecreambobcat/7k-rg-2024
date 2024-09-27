@@ -34,7 +34,7 @@ class LevelSelect:
         """
         return true to go back to the main menu
         """
-        selected: str = ''
+        selected: str = ""
 
         SELECT = True
         CLOCK = App.CLOCK
@@ -43,8 +43,10 @@ class LevelSelect:
             CLOCK.tick_busy_loop(120)
             break
         else:
-            if selected is not '':
-                App.CURRENT_LEVEL = App.LEVELS[selected]
+            if selected is not "":
+                for l in App.LEVELS.keys():
+                    if selected == l[0]:
+                        App.CURRENT_LEVEL = App.LEVELS[l]
             return False
         return True
 

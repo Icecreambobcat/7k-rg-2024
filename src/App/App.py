@@ -42,7 +42,7 @@ class App:
     Container for game methods and variables
     """
 
-    LEVELS: dict[str, Level_FILE]
+    LEVELS: dict[list[str], Level_FILE]
     LOGFILE: Path
     CLOCK: time.Clock
     DELTA_TIME: Callable[[], int]
