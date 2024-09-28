@@ -36,6 +36,7 @@ class Level_FILE:
             "D": Difficulty,
             "T": TimingPoints,
             "H": HitObjects,
+            "PATH": path,
         }
 
         with path.open() as level:
@@ -74,3 +75,4 @@ class Level_FILE:
         self.meta: dict[str, str | list[str]] = self.data["M"]
         self.info: dict[str, str] = self.data["G"]
         self.diff: dict[str, str] = self.data["D"]
+        self.path = self.data["PATH"]

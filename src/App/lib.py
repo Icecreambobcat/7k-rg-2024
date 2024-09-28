@@ -14,7 +14,7 @@ class Lib:
             Lib.PROJECT_ROOT,
             "Assets",
             "Levels",
-            str(level.meta["TitleUnicode"]),
+            Path(level.path, ".."),
             level.info["Background"],
         )
 
