@@ -1,6 +1,7 @@
-# 4k-rg-2024
+# 7k-rg-2024
 
-A 4k rhythm game built in python for school
+A 7k rhythm game built in python for school
+
 Reflection [here](IMHO.md)
 
 ## Dependancies
