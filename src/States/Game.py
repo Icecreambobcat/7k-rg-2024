@@ -2,6 +2,7 @@ from __future__ import annotations
 from abc import abstractmethod
 from collections.abc import Callable
 from pathlib import Path
+import asyncio
 
 from ..App.App import Object, App
 from ..App.lib import Lib
@@ -44,6 +45,8 @@ class Game:
 
     MULTIPLIER = Conf.MULTIPLIER
     CONSTANT = Conf.CONSTANT
+    already_paused = False
+    QUIT_LEVEL = False
 
     @staticmethod
     def PASSED_TIME() -> int:
@@ -67,7 +70,7 @@ class Game:
         cover_rect = Rect(600, 0, 700, 1080)
 
         App.RECENTSCORE = 0
-        QUIT_LEVEL = False
+        Game.QUIT_LEVEL = False
         AudioWrapper.song.set_volume(0.3)
 
         def failscreen() -> None:
@@ -121,6 +124,49 @@ class Game:
                 return 1000
             else:
                 return hp
+
+        async def update_objects() -> None:
+            # Move notes from LOADED to ACTIVE based on time
+            for sp in Game.LOADED:
+                if sp.hit_time >= Game.PASSED_TIME() - 500:
+                    sp.remove(Game.LOADED)
+                    sp.add(Game.ACTIVE)
+            Game.ACTIVE.update()
+
+        async def get_inputs() -> None:
+            for event in pg.event.get([pg.KEYDOWN, pg.KEYUP, pg.QUIT]):
+                if event.type == pg.QUIT:
+                    App.quit_app()
+                elif (
+                    event.key == pg.K_ESCAPE and Game.already_paused == False
+                ):  # Pause handling
+                    Game.already_paused = True
+                    pre_pause_time = Game.PASSED_TIME()
+                    Game.QUIT_LEVEL = pause_loop()
+                    Game.PAUSE_TIME = (
+                        Game.PASSED_TIME() - pre_pause_time + Game.PAUSE_TIME
+                    )
+                    continue
+                elif App.AUTO:
+                    continue
+                elif event.type == pg.KEYDOWN:
+                    Game.already_paused = False
+                    key_name = pg.key.name(event.key)
+                    if key_name in key_events_this_frame:
+                        key_events_this_frame[key_name].append(
+                            {"event": "down", "time": Game.PASSED_TIME()}
+                        )
+                elif event.type == pg.KEYUP:
+                    Game.already_paused = False
+                    key_name = pg.key.name(event.key)
+                    if key_name in key_events_this_frame:
+                        key_events_this_frame[key_name].append(
+                            {
+                                "event": "up",
+                                "time": Game.PASSED_TIME(),
+                            }
+                        )
+                time.delay(1)
 
         # implement a pause loop
         def pause_loop() -> bool:
@@ -206,8 +252,8 @@ class Game:
         }
 
         # Dictionary to track currently held keys for long notes
-        already_paused = False
         Game.PAUSE_TIME = 0
+        Game.already_paused = False
 
         while INGAME:
             key_events_this_frame: dict[str, list[dict]] = {
@@ -222,47 +268,9 @@ class Game:
             load_tex_UI()
             render_ELEMENTS()
 
-            # Move notes from LOADED to ACTIVE based on time
-            for sp in Game.LOADED:
-                if sp.hit_time >= Game.PASSED_TIME() - 500:
-                    sp.remove(Game.LOADED)
-                    sp.add(Game.ACTIVE)
+            asyncio.run(update_objects())
+            asyncio.run(get_inputs())
 
-            Game.ACTIVE.update()
-
-            for event in pg.event.get([pg.KEYDOWN, pg.KEYUP, pg.QUIT]):
-                if event.type == pg.QUIT:
-                    App.quit_app()
-                elif (
-                    event.key == pg.K_ESCAPE and already_paused == False
-                ):  # Pause handling
-                    already_paused = True
-                    pre_pause_time = Game.PASSED_TIME()
-                    QUIT_LEVEL = pause_loop()
-                    Game.PAUSE_TIME = (
-                        Game.PASSED_TIME() - pre_pause_time + Game.PAUSE_TIME
-                    )
-                    continue
-                elif App.AUTO:
-                    continue
-                elif event.type == pg.KEYDOWN:
-                    already_paused = False
-                    key_name = pg.key.name(event.key)
-                    if key_name in key_events_this_frame:
-                        key_events_this_frame[key_name].append(
-                            {"event": "down", "time": Game.PASSED_TIME()}
-                        )
-                elif event.type == pg.KEYUP:
-                    already_paused = False
-                    key_name = pg.key.name(event.key)
-                    if key_name in key_events_this_frame:
-                        key_events_this_frame[key_name].append(
-                            {
-                                "event": "up",
-                                "time": Game.PASSED_TIME(),
-                            }
-                        )
-                time.delay(1)
 
             if App.AUTO == False:
                 for key, events in key_events_this_frame.items():
@@ -382,7 +390,7 @@ class Game:
             if HEALTH <= 0:
                 failscreen()
                 break
-            elif QUIT_LEVEL:
+            elif Game.QUIT_LEVEL:
                 break
             elif AudioWrapper.song.get_busy() == False:
                 INGAME = False
