@@ -47,6 +47,8 @@ class Game:
     CONSTANT = Conf.CONSTANT
     already_paused = False
     QUIT_LEVEL = False
+    SCORE = 0
+    HEALTH = 1000
 
     @staticmethod
     def PASSED_TIME() -> int:
@@ -112,9 +114,9 @@ class Game:
             App.SCREEN.blit(line, line_rect)
 
         def render_ELEMENTS() -> None:
-            score_text = App.FONT32.render(f"{SCORE}", True, (255, 255, 255))
+            score_text = App.FONT32.render(f"{Game.SCORE}", True, (255, 255, 255))
             score_rect = score_text.get_rect(topright=(1920 - 10, 10))
-            hp_rect = rect.Rect(10, 10, HEALTH // 2, 40)
+            hp_rect = rect.Rect(10, 10, Game.HEALTH // 2, 40)
             draw.rect(App.SCREEN, (255, 255, 255), hp_rect)
             App.SCREEN.blit(score_text, score_rect)
 
@@ -152,21 +154,107 @@ class Game:
                 elif event.type == pg.KEYDOWN:
                     Game.already_paused = False
                     key_name = pg.key.name(event.key)
-                    if key_name in key_events_this_frame:
-                        key_events_this_frame[key_name].append(
+                    if key_name in key_events:
+                        key_events[key_name].append(
                             {"event": "down", "time": Game.PASSED_TIME()}
                         )
                 elif event.type == pg.KEYUP:
                     Game.already_paused = False
                     key_name = pg.key.name(event.key)
-                    if key_name in key_events_this_frame:
-                        key_events_this_frame[key_name].append(
+                    if key_name in key_events:
+                        key_events[key_name].append(
                             {
                                 "event": "up",
                                 "time": Game.PASSED_TIME(),
                             }
                         )
                 time.delay(1)
+
+        async def handle_inputs() -> None:
+            for key, events in key_events.items():
+                for event in events:
+                    if event["event"] == "down":
+                        for note in Game.ACTIVE:
+                            if note not in Game.HEAD_HIT and note.type == "LongNote":
+                                if note.required_key == key:
+                                    diff_time = abs(note.hit_time - event["time"])
+                                    if diff_time <= Conf.HIT_WINDOWS["miss"]:
+                                        if diff_time <= Conf.HIT_WINDOWS["plusperfect"]:
+                                            Game.SCORE += Conf.SCORING["plusperfect"]
+                                            Game.HEALTH = mod_hp(Game.HEALTH, 5)
+                                        elif diff_time <= Conf.HIT_WINDOWS["perfect"]:
+                                            Game.SCORE += Conf.SCORING["perfect"]
+                                            Game.HEALTH = mod_hp(Game.HEALTH, 3)
+                                        elif diff_time <= Conf.HIT_WINDOWS["great"]:
+                                            Game.SCORE += Conf.SCORING["great"]
+                                            Game.HEALTH = mod_hp(Game.HEALTH, 1)
+                                        elif diff_time <= Conf.HIT_WINDOWS["good"]:
+                                            Game.SCORE += Conf.SCORING["good"]
+                                            Game.HEALTH = mod_hp(Game.HEALTH, 0)
+                                        else:
+                                            Game.SCORE += Conf.SCORING["miss"]
+                                            Game.HEALTH = mod_hp(Game.HEALTH, -80)
+                                        note.add(
+                                            Game.HEAD_HIT
+                                        )  # Mark the long note's head as hit
+
+                            elif note.required_key == key:
+                                diff_time = abs(note.hit_time - event["time"])
+                                if diff_time <= Conf.HIT_WINDOWS["miss"]:
+                                    if diff_time <= Conf.HIT_WINDOWS["plusperfect"]:
+                                        Game.SCORE += Conf.SCORING["plusperfect"]
+                                        Game.HEALTH = mod_hp(Game.HEALTH, 5)
+                                    elif diff_time <= Conf.HIT_WINDOWS["perfect"]:
+                                        Game.SCORE += Conf.SCORING["perfect"]
+                                        Game.HEALTH = mod_hp(Game.HEALTH, 3)
+                                    elif diff_time <= Conf.HIT_WINDOWS["great"]:
+                                        Game.SCORE += Conf.SCORING["great"]
+                                        Game.HEALTH = mod_hp(Game.HEALTH, 1)
+                                    elif diff_time <= Conf.HIT_WINDOWS["good"]:
+                                        Game.SCORE += Conf.SCORING["good"]
+                                        Game.HEALTH = mod_hp(Game.HEALTH, 0)
+                                    else:
+                                        Game.SCORE += Conf.SCORING["miss"]
+                                        Game.HEALTH = mod_hp(Game.HEALTH, -80)
+
+                                    note.remove(Game.ACTIVE)
+                                    note.add(Game.PASSED)
+
+                    # On KEYUP: process the end of the long note
+                    elif event["event"] == "up":
+                        for note in Game.HEAD_HIT:
+                            if key == note.required_key and note.type == "LongNote":
+                                diff_time = abs(note.endtime - event["time"])
+                                if diff_time <= Conf.HIT_WINDOWS["miss"]:
+                                    if diff_time <= Conf.HIT_WINDOWS["plusperfect"]:
+                                        Game.SCORE += Conf.SCORING["plusperfect"]
+                                        Game.HEALTH = mod_hp(Game.HEALTH, 5)
+                                    elif diff_time <= Conf.HIT_WINDOWS["perfect"]:
+                                        Game.SCORE += Conf.SCORING["perfect"]
+                                        Game.HEALTH = mod_hp(Game.HEALTH, 3)
+                                    elif diff_time <= Conf.HIT_WINDOWS["great"]:
+                                        Game.SCORE += Conf.SCORING["great"]
+                                        Game.HEALTH = mod_hp(Game.HEALTH, 1)
+                                    elif diff_time <= Conf.HIT_WINDOWS["good"]:
+                                        Game.SCORE += Conf.SCORING["good"]
+                                        Game.HEALTH = mod_hp(Game.HEALTH, 0)
+                                else:
+                                    Game.SCORE += Conf.SCORING["miss"]
+                                    Game.HEALTH = mod_hp(Game.HEALTH, -80)
+
+                                # Remove the note from active play
+                                note.remove(Game.ACTIVE)
+                                note.remove(Game.HEAD_HIT)
+                                note.add(Game.PASSED)
+
+            for sp in Game.ACTIVE:
+                if sp.type == "TapNote" and sp.hit_time <= (
+                    Game.PASSED_TIME() - Conf.HIT_WINDOWS["miss"]
+                ):
+                    Game.SCORE += Conf.SCORING["miss"]
+                    Game.HEALTH = mod_hp(Game.HEALTH, -80)
+                    sp.remove(Game.ACTIVE)
+                    sp.add(Game.PASSED)
 
         # implement a pause loop
         def pause_loop() -> bool:
@@ -221,8 +309,8 @@ class Game:
                 return False
             return True
 
-        HEALTH = 1000
-        SCORE = 0
+        Game.HEALTH = 1000
+        Game.SCORE = 0
         CLOCK = App.CLOCK
         SONG = Game.get_audio(level)
         LEVEL_LOADED = Game.load_level(level)
@@ -241,7 +329,7 @@ class Game:
         INGAME = True
 
         # Dictionary to store key event lists for each key
-        key_events_this_frame: dict[str, list[dict]] = {
+        key_events: dict[str, list[dict]] = {
             "s": [],
             "d": [],
             "f": [],
@@ -256,7 +344,7 @@ class Game:
         Game.already_paused = False
 
         while INGAME:
-            key_events_this_frame: dict[str, list[dict]] = {
+            key_events: dict[str, list[dict]] = {
                 "s": [],
                 "d": [],
                 "f": [],
@@ -271,123 +359,31 @@ class Game:
             asyncio.run(update_objects())
             asyncio.run(get_inputs())
 
-
             if App.AUTO == False:
-                for key, events in key_events_this_frame.items():
-                    for event in events:
-                        if event["event"] == "down":
-                            for note in Game.ACTIVE:
-                                if (
-                                    note not in Game.HEAD_HIT
-                                    and note.type == "LongNote"
-                                ):
-                                    if note.required_key == key:
-                                        diff_time = abs(note.hit_time - event["time"])
-                                        if diff_time <= Conf.HIT_WINDOWS["miss"]:
-                                            if (
-                                                diff_time
-                                                <= Conf.HIT_WINDOWS["plusperfect"]
-                                            ):
-                                                SCORE += Conf.SCORING["plusperfect"]
-                                                HEALTH = mod_hp(HEALTH, 5)
-                                            elif (
-                                                diff_time <= Conf.HIT_WINDOWS["perfect"]
-                                            ):
-                                                SCORE += Conf.SCORING["perfect"]
-                                                HEALTH = mod_hp(HEALTH, 3)
-                                            elif diff_time <= Conf.HIT_WINDOWS["great"]:
-                                                SCORE += Conf.SCORING["great"]
-                                                HEALTH = mod_hp(HEALTH, 1)
-                                            elif diff_time <= Conf.HIT_WINDOWS["good"]:
-                                                SCORE += Conf.SCORING["good"]
-                                                HEALTH = mod_hp(HEALTH, 0)
-                                            else:
-                                                SCORE += Conf.SCORING["miss"]
-                                                HEALTH = mod_hp(HEALTH, -80)
-                                            note.add(
-                                                Game.HEAD_HIT
-                                            )  # Mark the long note's head as hit
-
-                                elif note.required_key == key:
-                                    diff_time = abs(note.hit_time - event["time"])
-                                    if diff_time <= Conf.HIT_WINDOWS["miss"]:
-                                        if diff_time <= Conf.HIT_WINDOWS["plusperfect"]:
-                                            SCORE += Conf.SCORING["plusperfect"]
-                                            HEALTH = mod_hp(HEALTH, 5)
-                                        elif diff_time <= Conf.HIT_WINDOWS["perfect"]:
-                                            SCORE += Conf.SCORING["perfect"]
-                                            HEALTH = mod_hp(HEALTH, 3)
-                                        elif diff_time <= Conf.HIT_WINDOWS["great"]:
-                                            SCORE += Conf.SCORING["great"]
-                                            HEALTH = mod_hp(HEALTH, 1)
-                                        elif diff_time <= Conf.HIT_WINDOWS["good"]:
-                                            SCORE += Conf.SCORING["good"]
-                                            HEALTH = mod_hp(HEALTH, 0)
-                                        else:
-                                            SCORE += Conf.SCORING["miss"]
-                                            HEALTH = mod_hp(HEALTH, -80)
-
-                                        note.remove(Game.ACTIVE)
-                                        note.add(Game.PASSED)
-
-                        # On KEYUP: process the end of the long note
-                        elif event["event"] == "up":
-                            for note in Game.HEAD_HIT:
-                                if key == note.required_key and note.type == "LongNote":
-                                    diff_time = abs(note.endtime - event["time"])
-                                    if diff_time <= Conf.HIT_WINDOWS["miss"]:
-                                        if diff_time <= Conf.HIT_WINDOWS["plusperfect"]:
-                                            SCORE += Conf.SCORING["plusperfect"]
-                                            HEALTH = mod_hp(HEALTH, 5)
-                                        elif diff_time <= Conf.HIT_WINDOWS["perfect"]:
-                                            SCORE += Conf.SCORING["perfect"]
-                                            HEALTH = mod_hp(HEALTH, 3)
-                                        elif diff_time <= Conf.HIT_WINDOWS["great"]:
-                                            SCORE += Conf.SCORING["great"]
-                                            HEALTH = mod_hp(HEALTH, 1)
-                                        elif diff_time <= Conf.HIT_WINDOWS["good"]:
-                                            SCORE += Conf.SCORING["good"]
-                                            HEALTH = mod_hp(HEALTH, 0)
-                                    else:
-                                        SCORE += Conf.SCORING["miss"]
-                                        HEALTH = mod_hp(HEALTH, -80)
-
-                                    # Remove the note from active play
-                                    note.remove(Game.ACTIVE)
-                                    note.remove(Game.HEAD_HIT)
-                                    note.add(Game.PASSED)
-
-                for sp in Game.ACTIVE:
-                    if sp.type == "TapNote" and sp.hit_time <= (
-                        Game.PASSED_TIME() - Conf.HIT_WINDOWS["miss"]
-                    ):
-                        SCORE += Conf.SCORING["miss"]
-                        HEALTH = mod_hp(HEALTH, -80)
-                        sp.remove(Game.ACTIVE)
-                        sp.add(Game.PASSED)
+                asyncio.run(handle_inputs())
 
             else:  # Auto-play logic
                 for note in Game.ACTIVE:
                     if note.type == "TapNote":
                         if note.hit_time <= Game.PASSED_TIME() - 10:
-                            SCORE += Conf.SCORING["plusperfect"]
+                            Game.SCORE += Conf.SCORING["plusperfect"]
                             note.remove(Game.ACTIVE)
                             note.add(Game.PASSED)
                     elif (
                         note.hit_time <= Game.PASSED_TIME() - 10
                         and note not in Game.HEAD_HIT
                     ):
-                        SCORE += Conf.SCORING["plusperfect"]
+                        Game.SCORE += Conf.SCORING["plusperfect"]
                         note.add(Game.HEAD_HIT)
                     elif note.endtime <= Game.PASSED_TIME() - 10:
-                        SCORE += Conf.SCORING["plusperfect"]
+                        Game.SCORE += Conf.SCORING["plusperfect"]
                         note.remove(Game.HEAD_HIT)
                         note.remove(Game.ACTIVE)
                         note.add(Game.PASSED)
 
             Game.ACTIVE.update()
 
-            if HEALTH <= 0:
+            if Game.HEALTH <= 0:
                 failscreen()
                 break
             elif Game.QUIT_LEVEL:
@@ -395,7 +391,7 @@ class Game:
             elif AudioWrapper.song.get_busy() == False:
                 INGAME = False
                 Game.PASSED.empty()
-                App.RECENTSCORE = SCORE
+                App.RECENTSCORE = Game.SCORE
 
             if pg.event.get(pg.QUIT):
                 App.quit_app()
