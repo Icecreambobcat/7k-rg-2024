@@ -437,8 +437,6 @@ class Note(Object):
     TODO: Optimise runtime overhead of loading stuff
     """
 
-    __slots__ = ("type", "hit_time", "lane")
-
     @property
     @abstractmethod
     def type(self) -> str:
@@ -498,6 +496,8 @@ class TapNote(Note):
     tapnote logic
     """
 
+    __slots__ = ("_lane", "_time")
+
     def __init__(self, lane: int, note_time: int) -> None:
         sprite.Sprite.__init__(self)
         self._lane = Note.lane_map[lane]
@@ -528,7 +528,7 @@ class LongNote(Note):
     LN logic
     """
 
-    __slots__ = ("_body", "_endtime")
+    __slots__ = ("_lane", "_time", "_body", "_endtime")
 
     def __init__(self, lane: int, note_time: int, note_endtime: int) -> None:
         sprite.Sprite.__init__(self)
