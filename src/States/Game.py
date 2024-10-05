@@ -344,15 +344,6 @@ class Game:
         Game.already_paused = False
 
         while INGAME:
-            key_events: dict[str, list[dict]] = {
-                "s": [],
-                "d": [],
-                "f": [],
-                "space": [],
-                "j": [],
-                "k": [],
-                "l": [],
-            }
             load_tex_UI()
             render_ELEMENTS()
 
@@ -380,8 +371,6 @@ class Game:
                         note.remove(Game.HEAD_HIT)
                         note.remove(Game.ACTIVE)
                         note.add(Game.PASSED)
-
-            Game.ACTIVE.update()
 
             if Game.HEALTH <= 0:
                 failscreen()
