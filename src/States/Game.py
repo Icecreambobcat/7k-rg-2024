@@ -393,7 +393,7 @@ class Game:
                 App.quit_app()
 
             display.flip()
-            CLOCK.tick_busy_loop(120)
+            CLOCK.tick_busy_loop(480)
 
         else:
             return False
