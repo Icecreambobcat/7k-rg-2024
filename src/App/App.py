@@ -58,7 +58,7 @@ class App:
         pg.init()
         App.LEVELS = Parser.level_load()
         App.CLOCK = time.Clock()
-        App.SCREEN = display.set_mode(size=(Conf.SCREEN_SIZE[0], Conf.SCREEN_SIZE[1]))
+        App.SCREEN = display.set_mode(size=(Conf.SCREEN_SIZE[0], Conf.SCREEN_SIZE[1]), vsync=1)
         display.set_caption("7k rg 1.0.0")
         App.STATE = "Menu"
         App.AUTO = False
