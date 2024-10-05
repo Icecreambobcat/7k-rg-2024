@@ -213,7 +213,7 @@ class Object(ABC, sprite.Sprite):  # Base class for all onscreen objects
     Pretty self explanatory, but this should be used to construct all onscreen objects
     Might import to specific gamestate files instead and instantiate the objects there before passing them back
     """
-
+    
     @property
     @abstractmethod
     def position(self) -> tuple[int, int]:

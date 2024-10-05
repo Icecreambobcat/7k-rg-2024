@@ -437,6 +437,8 @@ class Note(Object):
     TODO: Optimise runtime overhead of loading stuff
     """
 
+    __slots__ = ("type", "hit_time", "lane")
+
     @property
     @abstractmethod
     def type(self) -> str:
@@ -526,6 +528,8 @@ class LongNote(Note):
     LN logic
     """
 
+    __slots__ = ("_body", "_endtime")
+
     def __init__(self, lane: int, note_time: int, note_endtime: int) -> None:
         sprite.Sprite.__init__(self)
         self._lane = Note.lane_map[lane]
@@ -599,6 +603,8 @@ class Level_MEMORY:
     The actual object passed to the level engine at runtime
     Ensures reasonable overheads and isolates level data from loaded sprites which are more expensive
     """
+
+    __slots__ = ("notes", "meta", "info")
 
     @staticmethod
     def load_notes(line: list[str]) -> Note:

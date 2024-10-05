@@ -17,6 +17,12 @@ class Parser:
 
 
 class Level_FILE:
+    """
+    Stores level meta
+    """
+
+    __slots__ = ("data", "notes", "tpoints", "meta", "info", "diff", "parent_path")
+
     @staticmethod
     def parse_meta(path: Path) -> dict[str, Any]:
         """
