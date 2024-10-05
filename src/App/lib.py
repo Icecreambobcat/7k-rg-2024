@@ -14,7 +14,7 @@ class Lib:
             Lib.PROJECT_ROOT,
             "Assets",
             "Levels",
-            Path(level.path, ".."),
+            level.path,
             level.info["Background"],
         )
 

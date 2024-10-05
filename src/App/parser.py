@@ -9,9 +9,10 @@ class Parser:
     def level_load() -> dict[list[str], Level_FILE]:
         out = dict()
         dir = Path(Lib.PROJECT_ROOT, "Assets", "Levels")
-        for file in dir.rglob("*.osu"):
-            level = Level_FILE(file)
-            out[(level.meta["TitleUnicode"], level.meta["Version"])] = level
+        for parent_path in dir.iterdir():
+            for file in parent_path.rglob("*.osu"):
+                level = Level_FILE(file, parent_path)
+                out[(level.meta["TitleUnicode"], level.meta["Version"])] = level
         return out
 
 
@@ -36,7 +37,6 @@ class Level_FILE:
             "D": Difficulty,
             "T": TimingPoints,
             "H": HitObjects,
-            "PATH": path,
         }
 
         with path.open() as level:
@@ -68,11 +68,11 @@ class Level_FILE:
 
         return out
 
-    def __init__(self, path: Path) -> None:
+    def __init__(self, path: Path, parent: Path) -> None:
         self.data = Level_FILE.parse_meta(path)
         self.notes: list[list[str]] = self.data["H"]
         self.tpoints: list[list[str]] = self.data["T"]
         self.meta: dict[str, str | list[str]] = self.data["M"]
         self.info: dict[str, str] = self.data["G"]
         self.diff: dict[str, str] = self.data["D"]
-        self.path = self.data["PATH"]
+        self.parent_path = parent

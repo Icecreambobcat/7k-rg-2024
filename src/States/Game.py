@@ -416,7 +416,7 @@ class Game:
                     Lib.PROJECT_ROOT,
                     "Assets",
                     "Levels",
-                    str(level.meta["TitleUnicode"]),
+                    level.parent_path,
                     level.info["AudioFilename"],
                 )
             )
