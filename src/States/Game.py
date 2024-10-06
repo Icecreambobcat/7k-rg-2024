@@ -154,15 +154,15 @@ class Game:
                 elif event.type == pg.KEYDOWN:
                     Game.already_paused = False
                     key_name = pg.key.name(event.key)
-                    if key_name in key_events:
-                        key_events[key_name].append(
+                    if key_name in key_events_this_frame:
+                        key_events_this_frame[key_name].append(
                             {"event": "down", "time": Game.PASSED_TIME()}
                         )
                 elif event.type == pg.KEYUP:
                     Game.already_paused = False
                     key_name = pg.key.name(event.key)
-                    if key_name in key_events:
-                        key_events[key_name].append(
+                    if key_name in key_events_this_frame:
+                        key_events_this_frame[key_name].append(
                             {
                                 "event": "up",
                                 "time": Game.PASSED_TIME(),
@@ -170,8 +170,8 @@ class Game:
                         )
                 time.delay(1)
 
-        async def handle_inputs() -> None:
-            for key, events in key_events.items():
+        def handle_inputs() -> None:
+            for key, events in key_events_this_frame.items():
                 for event in events:
                     if event["event"] == "down":
                         for note in Game.ACTIVE:
@@ -329,7 +329,7 @@ class Game:
         INGAME = True
 
         # Dictionary to store key event lists for each key
-        key_events: dict[str, list[dict]] = {
+        key_events_this_frame: dict[str, list[dict]] = {
             "s": [],
             "d": [],
             "f": [],
@@ -344,6 +344,16 @@ class Game:
         Game.already_paused = False
 
         while INGAME:
+            key_events_this_frame: dict[str, list[dict]] = {
+                "s": [],
+                "d": [],
+                "f": [],
+                "space": [],
+                "j": [],
+                "k": [],
+                "l": [],
+            }
+
             load_tex_UI()
             render_ELEMENTS()
 
@@ -351,7 +361,7 @@ class Game:
             asyncio.run(get_inputs())
 
             if App.AUTO == False:
-                asyncio.run(handle_inputs())
+                handle_inputs()
 
             else:  # Auto-play logic
                 for note in Game.ACTIVE:
