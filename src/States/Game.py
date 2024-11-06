@@ -428,7 +428,7 @@ class Game:
             App.quit_app(
                 FileNotFoundError(
                     "Audio file not found in level metadata:",
-                    level.meta["TitleUnicode"],
+                    level.meta["Title"],
                 )
             )
 

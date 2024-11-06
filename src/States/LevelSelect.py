@@ -52,13 +52,13 @@ class LevelSelect:
             for song in SONG_LIST:
                 if song.selected:
                     text = App.FONT24.render(
-                        f"> {song.level.meta["TitleUnicode"]} | {song.level.meta["Version"]}",
+                        f"> {song.level.meta["Title"]} | {song.level.meta["Version"]}",
                         True,
                         (255, 255, 115),
                     )
                 else:
                     text = App.FONT24.render(
-                        f"  {song.level.meta["TitleUnicode"]} | {song.level.meta["Version"]}",
+                        f"  {song.level.meta["Title"]} | {song.level.meta["Version"]}",
                         True,
                         (115, 215, 215),
                     )

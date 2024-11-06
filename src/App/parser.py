@@ -12,7 +12,7 @@ class Parser:
         for parent_path in dir.iterdir():
             for file in parent_path.rglob("*.osu"):
                 level = Level_FILE(file, parent_path)
-                out[(level.meta["TitleUnicode"], level.meta["Version"])] = level
+                out[(level.meta["Title"], level.meta["Version"])] = level
         return out
 
 
